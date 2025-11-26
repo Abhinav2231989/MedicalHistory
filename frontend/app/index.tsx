@@ -1173,17 +1173,45 @@ const styles = StyleSheet.create({
   voiceButtonTop: {
     top: 12,
   },
+  formButtonsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    minWidth: 100,
+  },
+  backButtonText: {
+    color: '#007AFF',
+    fontSize: 17,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
   submitButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#007AFF',
     paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 8,
   },
   submitButtonText: {
     color: '#fff',
     fontSize: 17,
     fontWeight: '600',
+  },
+  buttonIcon: {
+    marginRight: 8,
   },
   cancelButton: {
     backgroundColor: '#fff',
