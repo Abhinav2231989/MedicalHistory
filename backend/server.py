@@ -248,8 +248,8 @@ async def create_patient_record(user_id: int, record: PatientRecordCreate):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@api_router.get("/patients/{user_id}", response_model=List[PatientRecord])
-async def get_all_patients(user_id: int, search: Optional[str] = None):
+@api_router.get("/patients", response_model=List[PatientRecord])
+async def get_all_patients(user_id: Optional[int] = None, search: Optional[str] = None):
     try:
         async with aiosqlite.connect(DB_PATH) as db:
             if search:
