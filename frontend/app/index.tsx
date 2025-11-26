@@ -39,6 +39,7 @@ interface StorageStats {
 }
 
 export default function MedicalHistoryApp() {
+  const [showWelcome, setShowWelcome] = useState(true);
   const [currentScreen, setCurrentScreen] = useState<'list' | 'form' | 'settings'>('list');
   const [records, setRecords] = useState<PatientRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
