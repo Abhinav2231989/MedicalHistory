@@ -220,6 +220,80 @@ test_plan:
   test_all: true
   test_priority: "high_first"
 
+  - task: "Patient ID Auto-generation - P#### format"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested Patient ID auto-generation. First patient gets P0001, same name gets same ID, different name gets P0002. All working correctly."
+
+  - task: "Search by Patient ID functionality"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested search by Patient ID (e.g., P0001) and patient name. Search correctly returns matching records."
+
+  - task: "SQLite Database Storage"
+    implemented: true
+    working: true
+    file: "/app/backend/database.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "SQLite database file exists at /app/backend/medical_records.db (24576 bytes). Database properly initialized and functional."
+
+  - task: "Storage Stats with needs_backup flag"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Storage stats endpoint returns all required fields: total_records, storage_used_mb, storage_percentage, needs_backup. Logic correctly sets needs_backup=false when storage < 80%."
+
+  - task: "Google Drive Integration Endpoints"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Google Drive endpoints working: /drive/status returns connected:false, /drive/auth-url returns authorization_url. Proper error handling for missing credentials."
+
+  - task: "Export with Patient ID field"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Export functionality includes Patient ID field in all exported records. CSV format includes proper Patient ID column."
+
 agent_communication:
   - agent: "testing"
     message: "Comprehensive backend API testing completed. Found and fixed critical bug in exception handling where logger was undefined, causing 500 errors instead of proper 404 responses. All 18 test cases now pass with 100% success rate. Medical History System backend API is fully functional."
+  - agent: "testing"
+    message: "NEW FEATURES TESTING COMPLETED: Tested all 6 new features requested - Patient ID auto-generation (P#### format), search by Patient ID, SQLite storage, storage stats with needs_backup flag, Google Drive integration endpoints, and export with Patient ID. All 16 test cases passed with 100% success rate. All new features are working correctly."
