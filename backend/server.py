@@ -248,36 +248,38 @@ async def create_patient_record(user_id: int, record: PatientRecordCreate):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@api_router.get("/patients", response_model=List[PatientRecord])
-async def get_all_patients(search: Optional[str] = None):
+@api_router.get("/patients/{user_id}", response_model=List[PatientRecord])
+async def get_all_patients(user_id: int, search: Optional[str] = None):
     try:
         async with aiosqlite.connect(DB_PATH) as db:
             if search:
                 query = '''
                     SELECT * FROM patient_records 
-                    WHERE LOWER(patient_name) LIKE LOWER(?) 
+                    WHERE user_id = ?
+                    AND (LOWER(patient_name) LIKE LOWER(?) 
                     OR LOWER(patient_id) LIKE LOWER(?)
                     OR LOWER(diagnosis_details) LIKE LOWER(?)
-                    OR LOWER(medicine_names) LIKE LOWER(?)
+                    OR LOWER(medicine_names) LIKE LOWER(?))
                     ORDER BY id DESC
                 '''
                 search_pattern = f"%{search}%"
-                async with db.execute(query, (search_pattern, search_pattern, search_pattern, search_pattern)) as cursor:
+                async with db.execute(query, (user_id, search_pattern, search_pattern, search_pattern, search_pattern)) as cursor:
                     rows = await cursor.fetchall()
             else:
-                async with db.execute('SELECT * FROM patient_records ORDER BY id DESC') as cursor:
+                async with db.execute('SELECT * FROM patient_records WHERE user_id = ? ORDER BY id DESC', (user_id,)) as cursor:
                     rows = await cursor.fetchall()
             
             records = []
             for row in rows:
                 records.append(PatientRecord(
                     id=row[0],
-                    patient_id=row[1],
-                    patient_name=row[2],
-                    diagnosis_details=row[3],
-                    medicine_names=row[4],
-                    created_at=row[5],
-                    updated_at=row[6]
+                    user_id=row[1],
+                    patient_id=row[2],
+                    patient_name=row[3],
+                    diagnosis_details=row[4],
+                    medicine_names=row[5],
+                    created_at=row[6],
+                    updated_at=row[7]
                 ))
             
             return records
