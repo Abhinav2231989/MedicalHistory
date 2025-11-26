@@ -208,10 +208,8 @@ async def update_patient_record(record_id: int, update_data: PatientRecordUpdate
         values.append(record_id)
         
         async with aiosqlite.connect(DB_PATH) as db:
-            await db.execute(
-                f'UPDATE patient_records SET {', '.join(update_fields)} WHERE id = ?',
-                tuple(values)
-            )
+            query = f"UPDATE patient_records SET {', '.join(update_fields)} WHERE id = ?"
+            await db.execute(query, tuple(values))
             await db.commit()
             
             # Fetch updated record
