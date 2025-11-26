@@ -38,14 +38,31 @@ interface StorageStats {
   needs_backup: boolean;
 }
 
+interface User {
+  id: number;
+  phone_number: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 export default function MedicalHistoryApp() {
   const [showWelcome, setShowWelcome] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentScreen, setCurrentScreen] = useState<'list' | 'form' | 'settings'>('list');
   const [records, setRecords] = useState<PatientRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
   const [driveConnected, setDriveConnected] = useState(false);
+  
+  // Auth form states
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   
   // Form states
   const [patientName, setPatientName] = useState('');
