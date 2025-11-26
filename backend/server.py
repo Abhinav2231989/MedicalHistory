@@ -162,6 +162,8 @@ async def delete_patient_record(record_id: str):
             raise HTTPException(status_code=404, detail="Record not found")
         
         return {"message": "Record deleted successfully"}
+    except HTTPException:
+        raise  # Re-raise HTTPException as-is
     except Exception as e:
         logger.error(f"Error deleting patient record: {e}")
         raise HTTPException(status_code=500, detail=str(e))
