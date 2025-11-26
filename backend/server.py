@@ -252,22 +252,41 @@ async def create_patient_record(user_id: int, record: PatientRecordCreate):
 async def get_all_patients(user_id: Optional[int] = None, search: Optional[str] = None):
     try:
         async with aiosqlite.connect(DB_PATH) as db:
-            if search:
-                query = '''
-                    SELECT * FROM patient_records 
-                    WHERE user_id = ?
-                    AND (LOWER(patient_name) LIKE LOWER(?) 
-                    OR LOWER(patient_id) LIKE LOWER(?)
-                    OR LOWER(diagnosis_details) LIKE LOWER(?)
-                    OR LOWER(medicine_names) LIKE LOWER(?))
-                    ORDER BY id DESC
-                '''
-                search_pattern = f"%{search}%"
-                async with db.execute(query, (user_id, search_pattern, search_pattern, search_pattern, search_pattern)) as cursor:
-                    rows = await cursor.fetchall()
+            if user_id:
+                # Filter by user_id if provided
+                if search:
+                    query = '''
+                        SELECT * FROM patient_records 
+                        WHERE user_id = ?
+                        AND (LOWER(patient_name) LIKE LOWER(?) 
+                        OR LOWER(patient_id) LIKE LOWER(?)
+                        OR LOWER(diagnosis_details) LIKE LOWER(?)
+                        OR LOWER(medicine_names) LIKE LOWER(?))
+                        ORDER BY id DESC
+                    '''
+                    search_pattern = f"%{search}%"
+                    async with db.execute(query, (user_id, search_pattern, search_pattern, search_pattern, search_pattern)) as cursor:
+                        rows = await cursor.fetchall()
+                else:
+                    async with db.execute('SELECT * FROM patient_records WHERE user_id = ? ORDER BY id DESC', (user_id,)) as cursor:
+                        rows = await cursor.fetchall()
             else:
-                async with db.execute('SELECT * FROM patient_records WHERE user_id = ? ORDER BY id DESC', (user_id,)) as cursor:
-                    rows = await cursor.fetchall()
+                # No user_id provided, return all records (for backward compatibility)
+                if search:
+                    query = '''
+                        SELECT * FROM patient_records 
+                        WHERE LOWER(patient_name) LIKE LOWER(?) 
+                        OR LOWER(patient_id) LIKE LOWER(?)
+                        OR LOWER(diagnosis_details) LIKE LOWER(?)
+                        OR LOWER(medicine_names) LIKE LOWER(?)
+                        ORDER BY id DESC
+                    '''
+                    search_pattern = f"%{search}%"
+                    async with db.execute(query, (search_pattern, search_pattern, search_pattern, search_pattern)) as cursor:
+                        rows = await cursor.fetchall()
+                else:
+                    async with db.execute('SELECT * FROM patient_records ORDER BY id DESC') as cursor:
+                        rows = await cursor.fetchall()
             
             records = []
             for row in rows:
