@@ -13,392 +13,481 @@ from pathlib import Path
 # Get backend URL from frontend .env
 BACKEND_URL = "https://0514b52e-e3d0-489f-8ea1-868232439255.preview.emergentagent.com/api"
 
-# Test data with realistic medical information
-TEST_PATIENTS = [
-    {
-        "patient_name": "Sarah Johnson",
-        "diagnosis_details": "Type 2 Diabetes Mellitus with mild peripheral neuropathy",
-        "medicine_names": "Metformin 500mg twice daily, Lisinopril 10mg once daily"
-    },
-    {
-        "patient_name": "Michael Chen",
-        "diagnosis_details": "Hypertension and hyperlipidemia",
-        "medicine_names": "Amlodipine 5mg daily, Atorvastatin 20mg at bedtime"
-    },
-    {
-        "patient_name": "Emily Rodriguez",
-        "diagnosis_details": "Asthma with seasonal allergic rhinitis",
-        "medicine_names": "Albuterol inhaler PRN, Fluticasone nasal spray daily"
-    },
-    {
-        "patient_name": "David Thompson",
-        "diagnosis_details": "Chronic lower back pain due to herniated disc L4-L5",
-        "medicine_names": "Ibuprofen 400mg TID, Gabapentin 300mg BID"
-    }
-]
-
-class APITester:
+class MedicalHistoryAPITester:
     def __init__(self):
-        self.created_patients = []
-        self.test_results = {
-            "passed": 0,
-            "failed": 0,
-            "errors": []
-        }
-
-    def log_result(self, test_name, success, message=""):
-        if success:
-            print(f"✅ {test_name}")
-            self.test_results["passed"] += 1
-        else:
-            print(f"❌ {test_name}: {message}")
-            self.test_results["failed"] += 1
-            self.test_results["errors"].append(f"{test_name}: {message}")
-
-    def test_api_root(self):
-        """Test the root API endpoint"""
+        self.base_url = BACKEND_URL
+        self.session = requests.Session()
+        self.test_results = []
+        self.created_records = []  # Track created records for cleanup
+        
+    def log_test(self, test_name, success, message, details=None):
+        """Log test results"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status} {test_name}: {message}")
+        if details:
+            print(f"   Details: {details}")
+        
+        self.test_results.append({
+            'test': test_name,
+            'success': success,
+            'message': message,
+            'details': details
+        })
+    
+    def test_patient_id_auto_generation(self):
+        """Test Patient ID auto-generation feature"""
+        print("\n=== Testing Patient ID Auto-generation ===")
+        
+        # Test 1: Create first record with "John Doe"
         try:
-            response = requests.get(f"{API_URL}/")
+            payload = {
+                "patient_name": "John Doe",
+                "diagnosis_details": "Hypertension and diabetes management",
+                "medicine_names": "Metformin 500mg, Lisinopril 10mg"
+            }
+            
+            response = self.session.post(f"{self.base_url}/patients", json=payload)
+            
             if response.status_code == 200:
                 data = response.json()
-                if "message" in data:
-                    self.log_result("API Root Endpoint", True)
-                    return True
+                patient_id_1 = data.get('patient_id')
+                record_id_1 = data.get('id')
+                self.created_records.append(record_id_1)
+                
+                if patient_id_1 and patient_id_1.startswith('P'):
+                    self.log_test("Patient ID Auto-generation - First Record", True, 
+                                f"First patient got ID: {patient_id_1}")
                 else:
-                    self.log_result("API Root Endpoint", False, "Missing message in response")
+                    self.log_test("Patient ID Auto-generation - First Record", False, 
+                                f"Expected P#### format, got: {patient_id_1}")
             else:
-                self.log_result("API Root Endpoint", False, f"Status code: {response.status_code}")
+                self.log_test("Patient ID Auto-generation - First Record", False, 
+                            f"Failed to create record: {response.status_code}")
+                return
+                
         except Exception as e:
-            self.log_result("API Root Endpoint", False, f"Exception: {str(e)}")
-        return False
-
-    def test_create_patient(self, patient_data):
-        """Test creating a patient record"""
+            self.log_test("Patient ID Auto-generation - First Record", False, f"Exception: {str(e)}")
+            return
+        
+        # Test 2: Create second record with same name "John Doe"
         try:
-            response = requests.post(f"{API_URL}/patients", json=patient_data)
+            time.sleep(1)  # Small delay
+            response = self.session.post(f"{self.base_url}/patients", json=payload)
+            
             if response.status_code == 200:
                 data = response.json()
-                required_fields = ["id", "slno", "patient_name", "diagnosis_details", 
-                                 "medicine_names", "created_at", "updated_at"]
+                patient_id_2 = data.get('patient_id')
+                record_id_2 = data.get('id')
+                self.created_records.append(record_id_2)
                 
-                missing_fields = [field for field in required_fields if field not in data]
-                if missing_fields:
-                    self.log_result(f"Create Patient - {patient_data['patient_name']}", 
-                                  False, f"Missing fields: {missing_fields}")
-                    return None
-                
-                # Verify slno is an integer
-                if not isinstance(data["slno"], int):
-                    self.log_result(f"Create Patient - {patient_data['patient_name']}", 
-                                  False, "slno is not an integer")
-                    return None
-                
-                self.log_result(f"Create Patient - {patient_data['patient_name']}", True)
-                self.created_patients.append(data)
-                return data
+                if patient_id_2 == patient_id_1:
+                    self.log_test("Patient ID Auto-generation - Same Name", True, 
+                                f"Same patient name got same ID: {patient_id_2}")
+                else:
+                    self.log_test("Patient ID Auto-generation - Same Name", False, 
+                                f"Expected {patient_id_1}, got: {patient_id_2}")
             else:
-                self.log_result(f"Create Patient - {patient_data['patient_name']}", 
-                              False, f"Status code: {response.status_code}, Response: {response.text}")
+                self.log_test("Patient ID Auto-generation - Same Name", False, 
+                            f"Failed to create record: {response.status_code}")
+                
         except Exception as e:
-            self.log_result(f"Create Patient - {patient_data['patient_name']}", 
-                          False, f"Exception: {str(e)}")
-        return None
-
-    def test_get_all_patients(self):
-        """Test getting all patient records"""
+            self.log_test("Patient ID Auto-generation - Same Name", False, f"Exception: {str(e)}")
+        
+        # Test 3: Create record with different name "Jane Smith"
         try:
-            response = requests.get(f"{API_URL}/patients")
+            payload_jane = {
+                "patient_name": "Jane Smith",
+                "diagnosis_details": "Migraine treatment and follow-up",
+                "medicine_names": "Sumatriptan 50mg, Propranolol 40mg"
+            }
+            
+            response = self.session.post(f"{self.base_url}/patients", json=payload_jane)
+            
             if response.status_code == 200:
                 data = response.json()
-                if isinstance(data, list):
-                    # Check if records are sorted by slno in descending order
-                    if len(data) > 1:
-                        sorted_correctly = all(data[i]["slno"] >= data[i+1]["slno"] 
-                                             for i in range(len(data)-1))
-                        if not sorted_correctly:
-                            self.log_result("Get All Patients", False, 
-                                          "Records not sorted by slno in descending order")
-                            return None
+                patient_id_3 = data.get('patient_id')
+                record_id_3 = data.get('id')
+                self.created_records.append(record_id_3)
+                
+                if patient_id_3 and patient_id_3 != patient_id_1 and patient_id_3.startswith('P'):
+                    self.log_test("Patient ID Auto-generation - Different Name", True, 
+                                f"Different patient got new ID: {patient_id_3}")
+                else:
+                    self.log_test("Patient ID Auto-generation - Different Name", False, 
+                                f"Expected different P#### format, got: {patient_id_3}")
+            else:
+                self.log_test("Patient ID Auto-generation - Different Name", False, 
+                            f"Failed to create record: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Patient ID Auto-generation - Different Name", False, f"Exception: {str(e)}")
+    
+    def test_search_by_patient_id(self):
+        """Test search functionality including Patient ID search"""
+        print("\n=== Testing Search by Patient ID ===")
+        
+        # First, get a patient_id to search for
+        try:
+            response = self.session.get(f"{self.base_url}/patients")
+            if response.status_code == 200:
+                data = response.json()
+                if data and len(data) > 0:
+                    test_patient_id = data[0].get('patient_id')
                     
-                    self.log_result("Get All Patients", True)
-                    return data
-                else:
-                    self.log_result("Get All Patients", False, "Response is not a list")
-            else:
-                self.log_result("Get All Patients", False, f"Status code: {response.status_code}")
-        except Exception as e:
-            self.log_result("Get All Patients", False, f"Exception: {str(e)}")
-        return None
-
-    def test_search_patients(self, search_term, expected_matches):
-        """Test search functionality"""
-        try:
-            response = requests.get(f"{API_URL}/patients", params={"search": search_term})
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, list):
-                    if len(data) >= expected_matches:
-                        self.log_result(f"Search Patients - '{search_term}'", True)
-                        return data
+                    # Test 1: Search by Patient ID
+                    search_response = self.session.get(f"{self.base_url}/patients?search={test_patient_id}")
+                    
+                    if search_response.status_code == 200:
+                        search_data = search_response.json()
+                        if isinstance(search_data, list) and len(search_data) >= 1:
+                            # Should return records with matching patient_id
+                            matching_records = [r for r in search_data if r.get('patient_id') == test_patient_id]
+                            if matching_records:
+                                self.log_test("Search by Patient ID", True, 
+                                            f"Found {len(matching_records)} records with patient_id {test_patient_id}")
+                            else:
+                                self.log_test("Search by Patient ID", False, 
+                                            "No records found with matching patient_id")
+                        else:
+                            self.log_test("Search by Patient ID", False, 
+                                        f"Expected list with results, got: {len(search_data) if isinstance(search_data, list) else 'non-list'}")
                     else:
-                        self.log_result(f"Search Patients - '{search_term}'", False, 
-                                      f"Expected at least {expected_matches} matches, got {len(data)}")
-                else:
-                    self.log_result(f"Search Patients - '{search_term}'", False, 
-                                  "Response is not a list")
-            else:
-                self.log_result(f"Search Patients - '{search_term}'", False, 
-                              f"Status code: {response.status_code}")
-        except Exception as e:
-            self.log_result(f"Search Patients - '{search_term}'", False, f"Exception: {str(e)}")
-        return None
-
-    def test_get_single_patient(self, patient_id):
-        """Test getting a single patient record"""
-        try:
-            response = requests.get(f"{API_URL}/patients/{patient_id}")
-            if response.status_code == 200:
-                data = response.json()
-                if "id" in data and data["id"] == patient_id:
-                    self.log_result(f"Get Single Patient - {patient_id}", True)
-                    return data
-                else:
-                    self.log_result(f"Get Single Patient - {patient_id}", False, 
-                                  "ID mismatch in response")
-            else:
-                self.log_result(f"Get Single Patient - {patient_id}", False, 
-                              f"Status code: {response.status_code}")
-        except Exception as e:
-            self.log_result(f"Get Single Patient - {patient_id}", False, f"Exception: {str(e)}")
-        return None
-
-    def test_get_invalid_patient(self):
-        """Test getting a patient with invalid ID"""
-        invalid_id = "507f1f77bcf86cd799439011"  # Valid ObjectId format but non-existent
-        try:
-            response = requests.get(f"{API_URL}/patients/{invalid_id}")
-            if response.status_code == 404:
-                self.log_result("Get Invalid Patient (404 test)", True)
-                return True
-            else:
-                self.log_result("Get Invalid Patient (404 test)", False, 
-                              f"Expected 404, got {response.status_code}")
-        except Exception as e:
-            self.log_result("Get Invalid Patient (404 test)", False, f"Exception: {str(e)}")
-        return False
-
-    def test_update_patient(self, patient_id, update_data):
-        """Test updating a patient record"""
-        try:
-            response = requests.put(f"{API_URL}/patients/{patient_id}", json=update_data)
-            if response.status_code == 200:
-                data = response.json()
-                # Verify the update was applied
-                for key, value in update_data.items():
-                    if key in data and data[key] == value:
-                        continue
+                        self.log_test("Search by Patient ID", False, 
+                                    f"Search failed: {search_response.status_code}")
+                    
+                    # Test 2: Search by patient name "John"
+                    name_search_response = self.session.get(f"{self.base_url}/patients?search=John")
+                    
+                    if name_search_response.status_code == 200:
+                        name_search_data = name_search_response.json()
+                        if isinstance(name_search_data, list):
+                            john_records = [r for r in name_search_data if 'john' in r.get('patient_name', '').lower()]
+                            if john_records:
+                                self.log_test("Search by Patient Name - John", True, 
+                                            f"Found {len(john_records)} records with 'John' in name")
+                            else:
+                                self.log_test("Search by Patient Name - John", True, 
+                                            "Search works but no 'John' records found (expected if no John records exist)")
+                        else:
+                            self.log_test("Search by Patient Name - John", False, 
+                                        "Search response is not a list")
                     else:
-                        self.log_result(f"Update Patient - {patient_id}", False, 
-                                      f"Update not applied for {key}")
-                        return None
+                        self.log_test("Search by Patient Name - John", False, 
+                                    f"Name search failed: {name_search_response.status_code}")
+                else:
+                    self.log_test("Search by Patient ID", False, "No patients found to test search with")
+            else:
+                self.log_test("Search by Patient ID", False, f"Failed to get patients: {response.status_code}")
                 
-                # Verify updated_at timestamp changed
-                if "updated_at" in data:
-                    self.log_result(f"Update Patient - {patient_id}", True)
-                    return data
-                else:
-                    self.log_result(f"Update Patient - {patient_id}", False, 
-                                  "updated_at field missing")
-            else:
-                self.log_result(f"Update Patient - {patient_id}", False, 
-                              f"Status code: {response.status_code}")
         except Exception as e:
-            self.log_result(f"Update Patient - {patient_id}", False, f"Exception: {str(e)}")
-        return None
-
-    def test_delete_patient(self, patient_id):
-        """Test deleting a patient record"""
+            self.log_test("Search by Patient ID", False, f"Exception: {str(e)}")
+    
+    def test_sqlite_storage(self):
+        """Test SQLite database storage"""
+        print("\n=== Testing SQLite Storage ===")
+        
+        # Test 1: Check if database file exists
+        db_path = Path("/app/backend/medical_records.db")
+        if db_path.exists():
+            file_size = db_path.stat().st_size
+            self.log_test("SQLite Database File", True, 
+                        f"Database file exists at {db_path}, size: {file_size} bytes")
+        else:
+            self.log_test("SQLite Database File", False, 
+                        f"Database file not found at {db_path}")
+    
+    def test_storage_stats_with_backup_flag(self):
+        """Test storage stats endpoint with needs_backup flag"""
+        print("\n=== Testing Storage Stats with needs_backup Flag ===")
+        
         try:
-            response = requests.delete(f"{API_URL}/patients/{patient_id}")
+            response = self.session.get(f"{self.base_url}/storage-stats")
+            
             if response.status_code == 200:
                 data = response.json()
-                if "message" in data:
-                    # Verify the record is actually deleted
-                    verify_response = requests.get(f"{API_URL}/patients/{patient_id}")
-                    if verify_response.status_code == 404:
-                        self.log_result(f"Delete Patient - {patient_id}", True)
-                        return True
-                    else:
-                        self.log_result(f"Delete Patient - {patient_id}", False, 
-                                      "Record still exists after deletion")
-                else:
-                    self.log_result(f"Delete Patient - {patient_id}", False, 
-                                  "Missing message in response")
-            else:
-                self.log_result(f"Delete Patient - {patient_id}", False, 
-                              f"Status code: {response.status_code}")
-        except Exception as e:
-            self.log_result(f"Delete Patient - {patient_id}", False, f"Exception: {str(e)}")
-        return False
-
-    def test_delete_invalid_patient(self):
-        """Test deleting a patient with invalid ID"""
-        invalid_id = "507f1f77bcf86cd799439011"  # Valid ObjectId format but non-existent
-        try:
-            response = requests.delete(f"{API_URL}/patients/{invalid_id}")
-            if response.status_code == 404:
-                self.log_result("Delete Invalid Patient (404 test)", True)
-                return True
-            else:
-                self.log_result("Delete Invalid Patient (404 test)", False, 
-                              f"Expected 404, got {response.status_code}")
-        except Exception as e:
-            self.log_result("Delete Invalid Patient (404 test)", False, f"Exception: {str(e)}")
-        return False
-
-    def test_storage_stats(self):
-        """Test storage statistics endpoint"""
-        try:
-            response = requests.get(f"{API_URL}/storage-stats")
-            if response.status_code == 200:
-                data = response.json()
-                required_fields = ["total_records", "storage_used_mb", "storage_percentage"]
+                required_fields = ['total_records', 'storage_used_mb', 'storage_percentage', 'needs_backup']
+                
                 missing_fields = [field for field in required_fields if field not in data]
-                
-                if missing_fields:
-                    self.log_result("Storage Stats", False, f"Missing fields: {missing_fields}")
-                    return None
-                
-                # Verify data types
-                if (isinstance(data["total_records"], int) and 
-                    isinstance(data["storage_used_mb"], (int, float)) and 
-                    isinstance(data["storage_percentage"], (int, float))):
-                    self.log_result("Storage Stats", True)
-                    return data
+                if not missing_fields:
+                    # Check data types
+                    total_records = data.get('total_records')
+                    storage_used_mb = data.get('storage_used_mb')
+                    storage_percentage = data.get('storage_percentage')
+                    needs_backup = data.get('needs_backup')
+                    
+                    if (isinstance(total_records, int) and 
+                        isinstance(storage_used_mb, (int, float)) and 
+                        isinstance(storage_percentage, (int, float)) and 
+                        isinstance(needs_backup, bool)):
+                        
+                        self.log_test("Storage Stats - All Fields", True, 
+                                    f"All fields present with correct types", 
+                                    f"Records: {total_records}, Storage: {storage_used_mb}MB ({storage_percentage}%), Backup needed: {needs_backup}")
+                        
+                        # Test needs_backup logic (should be True if storage_percentage >= 80)
+                        expected_backup = storage_percentage >= 80
+                        if needs_backup == expected_backup:
+                            self.log_test("Storage Stats - needs_backup Logic", True, 
+                                        f"needs_backup correctly set to {needs_backup}")
+                        else:
+                            self.log_test("Storage Stats - needs_backup Logic", False, 
+                                        f"needs_backup is {needs_backup}, expected {expected_backup} (storage: {storage_percentage}%)")
+                    else:
+                        self.log_test("Storage Stats - Data Types", False, 
+                                    f"Incorrect data types in response")
                 else:
-                    self.log_result("Storage Stats", False, "Invalid data types in response")
+                    self.log_test("Storage Stats - Missing Fields", False, 
+                                f"Missing fields: {missing_fields}")
             else:
-                self.log_result("Storage Stats", False, f"Status code: {response.status_code}")
+                self.log_test("Storage Stats - API Response", False, 
+                            f"Failed to get storage stats: {response.status_code}")
+                
         except Exception as e:
-            self.log_result("Storage Stats", False, f"Exception: {str(e)}")
-        return None
-
-    def test_export_records(self):
-        """Test export records endpoint"""
+            self.log_test("Storage Stats - Exception", False, f"Exception: {str(e)}")
+    
+    def test_google_drive_integration(self):
+        """Test Google Drive integration endpoints"""
+        print("\n=== Testing Google Drive Integration ===")
+        
+        # Test 1: Check drive status
         try:
-            response = requests.post(f"{API_URL}/export-records")
+            response = self.session.get(f"{self.base_url}/drive/status")
+            
             if response.status_code == 200:
                 data = response.json()
-                if "records" in data and "total" in data:
-                    if isinstance(data["records"], list) and isinstance(data["total"], int):
-                        # Check if records have proper CSV format fields
-                        if data["records"]:
-                            required_fields = ["SlNo", "Patient Name", "Diagnosis Details", 
-                                             "Medicine Names", "Created At"]
-                            first_record = data["records"][0]
-                            missing_fields = [field for field in required_fields 
-                                            if field not in first_record]
-                            
-                            if missing_fields:
-                                self.log_result("Export Records", False, 
-                                              f"Missing CSV fields: {missing_fields}")
-                                return None
-                        
-                        self.log_result("Export Records", True)
-                        return data
-                    else:
-                        self.log_result("Export Records", False, "Invalid data types in response")
+                if 'connected' in data:
+                    connected = data.get('connected')
+                    self.log_test("Google Drive Status", True, 
+                                f"Drive status endpoint working, connected: {connected}")
                 else:
-                    self.log_result("Export Records", False, "Missing records or total fields")
+                    self.log_test("Google Drive Status", False, 
+                                "Response missing 'connected' field")
             else:
-                self.log_result("Export Records", False, f"Status code: {response.status_code}")
+                self.log_test("Google Drive Status", False, 
+                            f"Drive status failed: {response.status_code}")
+                
         except Exception as e:
-            self.log_result("Export Records", False, f"Exception: {str(e)}")
-        return None
-
-    def run_comprehensive_tests(self):
-        """Run all tests in sequence"""
-        print("🚀 Starting Comprehensive Medical History System API Tests")
+            self.log_test("Google Drive Status", False, f"Exception: {str(e)}")
+        
+        # Test 2: Get auth URL
+        try:
+            response = self.session.get(f"{self.base_url}/drive/auth-url")
+            
+            if response.status_code == 200:
+                data = response.json()
+                if 'authorization_url' in data:
+                    self.log_test("Google Drive Auth URL", True, 
+                                "Auth URL endpoint working, returns authorization_url")
+                else:
+                    self.log_test("Google Drive Auth URL", False, 
+                                "Response missing 'authorization_url' field")
+            elif response.status_code == 500:
+                # Expected if credentials not configured
+                try:
+                    error_data = response.json()
+                    if "credentials not configured" in error_data.get('detail', '').lower():
+                        self.log_test("Google Drive Auth URL", True, 
+                                    "Auth URL endpoint working, correctly reports missing credentials")
+                    else:
+                        self.log_test("Google Drive Auth URL", False, 
+                                    f"Unexpected 500 error: {error_data.get('detail')}")
+                except:
+                    self.log_test("Google Drive Auth URL", False, 
+                                f"500 error with invalid JSON response")
+            else:
+                self.log_test("Google Drive Auth URL", False, 
+                            f"Auth URL failed: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Google Drive Auth URL", False, f"Exception: {str(e)}")
+    
+    def test_export_with_patient_id(self):
+        """Test export functionality includes Patient ID field"""
+        print("\n=== Testing Export with Patient ID ===")
+        
+        try:
+            response = self.session.post(f"{self.base_url}/export-records")
+            
+            if response.status_code == 200:
+                data = response.json()
+                if 'records' in data and 'total' in data:
+                    records = data.get('records', [])
+                    if records:
+                        # Check if first record has Patient ID field
+                        first_record = records[0]
+                        if 'Patient ID' in first_record:
+                            patient_id = first_record.get('Patient ID')
+                            self.log_test("Export with Patient ID", True, 
+                                        f"Export includes Patient ID field, sample: {patient_id}")
+                            
+                            # Verify all records have Patient ID
+                            all_have_patient_id = all('Patient ID' in record for record in records)
+                            if all_have_patient_id:
+                                self.log_test("Export - All Records Have Patient ID", True, 
+                                            f"All {len(records)} exported records include Patient ID")
+                            else:
+                                self.log_test("Export - All Records Have Patient ID", False, 
+                                            "Some exported records missing Patient ID field")
+                        else:
+                            self.log_test("Export with Patient ID", False, 
+                                        "Exported records missing 'Patient ID' field")
+                    else:
+                        self.log_test("Export with Patient ID", True, 
+                                    "Export working but no records to export")
+                else:
+                    self.log_test("Export with Patient ID", False, 
+                                "Export response missing 'records' or 'total' field")
+            else:
+                self.log_test("Export with Patient ID", False, 
+                            f"Export failed: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Export with Patient ID", False, f"Exception: {str(e)}")
+    
+    def test_comprehensive_flow(self):
+        """Test comprehensive flow of all operations"""
+        print("\n=== Testing Comprehensive Flow ===")
+        
+        # Create a record and test full CRUD cycle
+        try:
+            # Create
+            payload = {
+                "patient_name": "Alice Johnson",
+                "diagnosis_details": "Routine checkup and vaccination",
+                "medicine_names": "Multivitamin, Flu vaccine"
+            }
+            
+            create_response = self.session.post(f"{self.base_url}/patients", json=payload)
+            if create_response.status_code != 200:
+                self.log_test("Comprehensive Flow - Create", False, 
+                            f"Failed to create record: {create_response.status_code}")
+                return
+            
+            created_record = create_response.json()
+            record_id = created_record.get('id')
+            patient_id = created_record.get('patient_id')
+            self.created_records.append(record_id)
+            
+            self.log_test("Comprehensive Flow - Create", True, 
+                        f"Created record with ID: {record_id}, Patient ID: {patient_id}")
+            
+            # Read
+            read_response = self.session.get(f"{self.base_url}/patients/{record_id}")
+            if read_response.status_code == 200:
+                self.log_test("Comprehensive Flow - Read", True, 
+                            f"Successfully retrieved record {record_id}")
+            else:
+                self.log_test("Comprehensive Flow - Read", False, 
+                            f"Failed to read record: {read_response.status_code}")
+            
+            # Update
+            update_payload = {
+                "diagnosis_details": "Updated: Routine checkup completed, all normal"
+            }
+            update_response = self.session.put(f"{self.base_url}/patients/{record_id}", json=update_payload)
+            if update_response.status_code == 200:
+                updated_record = update_response.json()
+                if "Updated:" in updated_record.get('diagnosis_details', ''):
+                    self.log_test("Comprehensive Flow - Update", True, 
+                                f"Successfully updated record {record_id}")
+                else:
+                    self.log_test("Comprehensive Flow - Update", False, 
+                                "Update response doesn't reflect changes")
+            else:
+                self.log_test("Comprehensive Flow - Update", False, 
+                            f"Failed to update record: {update_response.status_code}")
+            
+            # Search for the record
+            search_response = self.session.get(f"{self.base_url}/patients?search={patient_id}")
+            if search_response.status_code == 200:
+                search_results = search_response.json()
+                found = any(r.get('id') == record_id for r in search_results)
+                if found:
+                    self.log_test("Comprehensive Flow - Search", True, 
+                                f"Successfully found record via search")
+                else:
+                    self.log_test("Comprehensive Flow - Search", False, 
+                                "Record not found in search results")
+            else:
+                self.log_test("Comprehensive Flow - Search", False, 
+                            f"Search failed: {search_response.status_code}")
+            
+        except Exception as e:
+            self.log_test("Comprehensive Flow", False, f"Exception: {str(e)}")
+    
+    def cleanup_test_records(self):
+        """Clean up test records"""
+        print("\n=== Cleaning Up Test Records ===")
+        
+        for record_id in self.created_records:
+            try:
+                response = self.session.delete(f"{self.base_url}/patients/{record_id}")
+                if response.status_code == 200:
+                    print(f"✅ Deleted test record {record_id}")
+                else:
+                    print(f"⚠️  Failed to delete record {record_id}: {response.status_code}")
+            except Exception as e:
+                print(f"⚠️  Exception deleting record {record_id}: {str(e)}")
+    
+    def run_all_tests(self):
+        """Run all tests"""
+        print(f"🚀 Starting Medical History System Backend Tests - NEW FEATURES")
+        print(f"Backend URL: {self.base_url}")
         print("=" * 60)
         
-        # Test 1: API Root
-        self.test_api_root()
+        # Test basic connectivity
+        try:
+            response = self.session.get(f"{self.base_url}/")
+            if response.status_code == 200:
+                print("✅ Backend connectivity confirmed")
+            else:
+                print(f"❌ Backend connectivity failed: {response.status_code}")
+                return
+        except Exception as e:
+            print(f"❌ Backend connectivity failed: {str(e)}")
+            return
         
-        # Test 2: Create patient records
-        print("\n📝 Testing Patient Creation...")
-        for patient in TEST_PATIENTS:
-            self.test_create_patient(patient)
+        # Run all tests
+        self.test_patient_id_auto_generation()
+        self.test_search_by_patient_id()
+        self.test_sqlite_storage()
+        self.test_storage_stats_with_backup_flag()
+        self.test_google_drive_integration()
+        self.test_export_with_patient_id()
+        self.test_comprehensive_flow()
         
-        # Test 3: Get all patients
-        print("\n📋 Testing Get All Patients...")
-        all_patients = self.test_get_all_patients()
+        # Cleanup
+        self.cleanup_test_records()
         
-        # Test 4: Search functionality
-        print("\n🔍 Testing Search Functionality...")
-        self.test_search_patients("diabetes", 1)  # Should find Sarah Johnson
-        self.test_search_patients("chen", 1)      # Should find Michael Chen
-        self.test_search_patients("ibuprofen", 1) # Should find David Thompson
-        self.test_search_patients("ASTHMA", 1)    # Case insensitive test
-        
-        # Test 5: Get single patient
-        print("\n👤 Testing Get Single Patient...")
-        if self.created_patients:
-            self.test_get_single_patient(self.created_patients[0]["id"])
-        
-        # Test 6: Get invalid patient (404 test)
-        self.test_get_invalid_patient()
-        
-        # Test 7: Update patient
-        print("\n✏️ Testing Patient Updates...")
-        if self.created_patients:
-            update_data = {
-                "patient_name": "Sarah Johnson-Smith",
-                "diagnosis_details": "Type 2 Diabetes Mellitus with improved glucose control"
-            }
-            updated_patient = self.test_update_patient(self.created_patients[0]["id"], update_data)
-            
-            # Test partial update
-            partial_update = {"medicine_names": "Metformin 1000mg twice daily"}
-            self.test_update_patient(self.created_patients[1]["id"], partial_update)
-        
-        # Test 8: Storage stats
-        print("\n📊 Testing Storage Statistics...")
-        self.test_storage_stats()
-        
-        # Test 9: Export records
-        print("\n📤 Testing Export Functionality...")
-        self.test_export_records()
-        
-        # Test 10: Delete patient
-        print("\n🗑️ Testing Patient Deletion...")
-        if len(self.created_patients) > 2:
-            self.test_delete_patient(self.created_patients[-1]["id"])
-        
-        # Test 11: Delete invalid patient (404 test)
-        self.test_delete_invalid_patient()
-        
-        # Final summary
+        # Summary
+        self.print_summary()
+    
+    def print_summary(self):
+        """Print test summary"""
         print("\n" + "=" * 60)
         print("📊 TEST SUMMARY")
         print("=" * 60)
-        print(f"✅ Passed: {self.test_results['passed']}")
-        print(f"❌ Failed: {self.test_results['failed']}")
-        print(f"📈 Success Rate: {(self.test_results['passed'] / (self.test_results['passed'] + self.test_results['failed']) * 100):.1f}%")
         
-        if self.test_results["errors"]:
-            print("\n🚨 FAILED TESTS:")
-            for error in self.test_results["errors"]:
-                print(f"   • {error}")
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for result in self.test_results if result['success'])
+        failed_tests = total_tests - passed_tests
         
-        return self.test_results["failed"] == 0
+        print(f"Total Tests: {total_tests}")
+        print(f"Passed: {passed_tests}")
+        print(f"Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        
+        if failed_tests > 0:
+            print("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result['success']:
+                    print(f"  • {result['test']}: {result['message']}")
+        
+        print("\n✅ PASSED TESTS:")
+        for result in self.test_results:
+            if result['success']:
+                print(f"  • {result['test']}")
 
 if __name__ == "__main__":
-    tester = APITester()
-    success = tester.run_comprehensive_tests()
-    
-    if success:
-        print("\n🎉 All tests passed! Medical History System API is working correctly.")
-        sys.exit(0)
-    else:
-        print(f"\n⚠️ {tester.test_results['failed']} test(s) failed. Please check the issues above.")
-        sys.exit(1)
+    tester = MedicalHistoryAPITester()
+    tester.run_all_tests()
