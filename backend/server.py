@@ -205,8 +205,8 @@ async def login_user(login_data: UserLogin):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@api_router.post("/patients", response_model=PatientRecord)
-async def create_patient_record(record: PatientRecordCreate):
+@api_router.post("/patients/{user_id}", response_model=PatientRecord)
+async def create_patient_record(user_id: int, record: PatientRecordCreate):
     try:
         # Generate patient ID
         patient_id = await db_instance.get_next_patient_id(record.patient_name)
@@ -214,10 +214,10 @@ async def create_patient_record(record: PatientRecordCreate):
         async with aiosqlite.connect(DB_PATH) as db:
             cursor = await db.execute(
                 '''
-                INSERT INTO patient_records (patient_id, patient_name, diagnosis_details, medicine_names)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO patient_records (user_id, patient_id, patient_name, diagnosis_details, medicine_names)
+                VALUES (?, ?, ?, ?, ?)
                 ''',
-                (patient_id, record.patient_name, record.diagnosis_details, record.medicine_names)
+                (user_id, patient_id, record.patient_name, record.diagnosis_details, record.medicine_names)
             )
             await db.commit()
             record_id = cursor.lastrowid
@@ -231,12 +231,13 @@ async def create_patient_record(record: PatientRecordCreate):
                 if row:
                     return PatientRecord(
                         id=row[0],
-                        patient_id=row[1],
-                        patient_name=row[2],
-                        diagnosis_details=row[3],
-                        medicine_names=row[4],
-                        created_at=row[5],
-                        updated_at=row[6]
+                        user_id=row[1],
+                        patient_id=row[2],
+                        patient_name=row[3],
+                        diagnosis_details=row[4],
+                        medicine_names=row[5],
+                        created_at=row[6],
+                        updated_at=row[7]
                     )
         
         # Check if backup needed
