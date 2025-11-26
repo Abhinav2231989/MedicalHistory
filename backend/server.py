@@ -205,8 +205,8 @@ async def login_user(login_data: UserLogin):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@api_router.post("/patients/{user_id}", response_model=PatientRecord)
-async def create_patient_record(user_id: int, record: PatientRecordCreate):
+@api_router.post("/patients", response_model=PatientRecord)
+async def create_patient_record(record: PatientRecordCreate, user_id: Optional[int] = 1):
     try:
         # Generate patient ID
         patient_id = await db_instance.get_next_patient_id(record.patient_name)
