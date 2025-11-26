@@ -38,8 +38,26 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # Models
+class User(BaseModel):
+    id: Optional[int] = None
+    phone_number: str
+    first_name: str
+    last_name: str
+    email: str
+    created_at: Optional[str] = None
+
+class UserRegister(BaseModel):
+    phone_number: str
+    first_name: str
+    last_name: str
+    email: str
+
+class UserLogin(BaseModel):
+    phone_number: str
+
 class PatientRecord(BaseModel):
     id: Optional[int] = None
+    user_id: int
     patient_id: str
     patient_name: str
     diagnosis_details: str
