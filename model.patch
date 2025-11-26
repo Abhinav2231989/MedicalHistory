@@ -1,193 +1,289 @@
-diff --git a/backend/server.py b/backend/server.py
-index 5d5e8af..4a3fb4e 100644
---- a/backend/server.py
-+++ b/backend/server.py
-@@ -10,6 +10,12 @@ from typing import List, Optional
- from datetime import datetime
- from bson import ObjectId
- 
-+# Configure logging first
-+logging.basicConfig(
-+    level=logging.INFO,
-+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-+)
-+logger = logging.getLogger(__name__)
- 
- ROOT_DIR = Path(__file__).parent
- load_dotenv(ROOT_DIR / '.env')
-@@ -121,6 +127,8 @@ async def get_patient_record(record_id: str):
-         
-         record["id"] = str(record["_id"])
-         return PatientRecord(**record)
-+    except HTTPException:
-+        raise  # Re-raise HTTPException as-is
-     except Exception as e:
-         logger.error(f"Error fetching patient record: {e}")
-         raise HTTPException(status_code=404, detail="Record not found")
-@@ -143,6 +151,8 @@ async def update_patient_record(record_id: str, update_data: PatientRecordUpdate
-         
-         result["id"] = str(result["_id"])
-         return PatientRecord(**result)
-+    except HTTPException:
-+        raise  # Re-raise HTTPException as-is
-     except Exception as e:
-         logger.error(f"Error updating patient record: {e}")
-         raise HTTPException(status_code=500, detail=str(e))
-@@ -156,6 +166,8 @@ async def delete_patient_record(record_id: str):
-             raise HTTPException(status_code=404, detail="Record not found")
-         
-         return {"message": "Record deleted successfully"}
-+    except HTTPException:
-+        raise  # Re-raise HTTPException as-is
-     except Exception as e:
-         logger.error(f"Error deleting patient record: {e}")
-         raise HTTPException(status_code=500, detail=str(e))
-@@ -217,13 +229,6 @@ app.add_middleware(
-     allow_headers=["*"],
- )
- 
--# Configure logging
--logging.basicConfig(
--    level=logging.INFO,
--    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
--)
--logger = logging.getLogger(__name__)
--
- @app.on_event("shutdown")
- async def shutdown_db_client():
-     client.close()
-\ No newline at end of file
+diff --git a/backend/medical_records.db b/backend/medical_records.db
+index 146b594..d815b0c 100644
+Binary files a/backend/medical_records.db and b/backend/medical_records.db differ
+diff --git a/model.patch b/model.patch
+index 2ff13e4..e69de29 100644
+--- a/model.patch
++++ b/model.patch
+@@ -1,193 +0,0 @@
+-diff --git a/backend/server.py b/backend/server.py
+-index 5d5e8af..4a3fb4e 100644
+---- a/backend/server.py
+-+++ b/backend/server.py
+-@@ -10,6 +10,12 @@ from typing import List, Optional
+- from datetime import datetime
+- from bson import ObjectId
+- 
+-+# Configure logging first
+-+logging.basicConfig(
+-+    level=logging.INFO,
+-+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+-+)
+-+logger = logging.getLogger(__name__)
+- 
+- ROOT_DIR = Path(__file__).parent
+- load_dotenv(ROOT_DIR / '.env')
+-@@ -121,6 +127,8 @@ async def get_patient_record(record_id: str):
+-         
+-         record["id"] = str(record["_id"])
+-         return PatientRecord(**record)
+-+    except HTTPException:
+-+        raise  # Re-raise HTTPException as-is
+-     except Exception as e:
+-         logger.error(f"Error fetching patient record: {e}")
+-         raise HTTPException(status_code=404, detail="Record not found")
+-@@ -143,6 +151,8 @@ async def update_patient_record(record_id: str, update_data: PatientRecordUpdate
+-         
+-         result["id"] = str(result["_id"])
+-         return PatientRecord(**result)
+-+    except HTTPException:
+-+        raise  # Re-raise HTTPException as-is
+-     except Exception as e:
+-         logger.error(f"Error updating patient record: {e}")
+-         raise HTTPException(status_code=500, detail=str(e))
+-@@ -156,6 +166,8 @@ async def delete_patient_record(record_id: str):
+-             raise HTTPException(status_code=404, detail="Record not found")
+-         
+-         return {"message": "Record deleted successfully"}
+-+    except HTTPException:
+-+        raise  # Re-raise HTTPException as-is
+-     except Exception as e:
+-         logger.error(f"Error deleting patient record: {e}")
+-         raise HTTPException(status_code=500, detail=str(e))
+-@@ -217,13 +229,6 @@ app.add_middleware(
+-     allow_headers=["*"],
+- )
+- 
+--# Configure logging
+--logging.basicConfig(
+--    level=logging.INFO,
+--    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+--)
+--logger = logging.getLogger(__name__)
+--
+- @app.on_event("shutdown")
+- async def shutdown_db_client():
+-     client.close()
+-\ No newline at end of file
+-diff --git a/test_result.md b/test_result.md
+-index 187cba4..22eae46 100644
+---- a/test_result.md
+-+++ b/test_result.md
+-@@ -100,4 +100,126 @@
+- 
+- #====================================================================================================
+- # Testing Data - Main Agent and testing sub agent both should log testing data below this section
+--#====================================================================================================
+-\ No newline at end of file
+-+#====================================================================================================
+-+
+-+user_problem_statement: "Test the Medical History System backend API with comprehensive tests for all endpoints including CRUD operations, search functionality, storage stats, and export features."
+-+
+-+backend:
+-+  - task: "POST /api/patients - Create patient record"
+-+    implemented: true
+-+    working: true
+-+    file: "/app/backend/server.py"
+-+    stuck_count: 0
+-+    priority: "high"
+-+    needs_retesting: false
+-+    status_history:
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "Successfully tested patient creation with realistic medical data. Auto-increment slno working correctly. All required fields returned including id, slno, timestamps."
+-+
+-+  - task: "GET /api/patients - Get all patients with sorting"
+-+    implemented: true
+-+    working: true
+-+    file: "/app/backend/server.py"
+-+    stuck_count: 0
+-+    priority: "high"
+-+    needs_retesting: false
+-+    status_history:
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "Successfully tested fetching all patients. Records properly sorted by slno in descending order as expected."
+-+
+-+  - task: "GET /api/patients?search={query} - Search functionality"
+-+    implemented: true
+-+    working: true
+-+    file: "/app/backend/server.py"
+-+    stuck_count: 0
+-+    priority: "high"
+-+    needs_retesting: false
+-+    status_history:
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "Successfully tested search across patient_name, diagnosis_details, and medicine_names. Case-insensitive search working correctly."
+-+
+-+  - task: "GET /api/patients/{id} - Get single patient"
+-+    implemented: true
+-+    working: true
+-+    file: "/app/backend/server.py"
+-+    stuck_count: 0
+-+    priority: "high"
+-+    needs_retesting: false
+-+    status_history:
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "Successfully tested getting single patient by ID. Proper 404 handling for invalid IDs after fixing HTTPException handling."
+-+
+-+  - task: "PUT /api/patients/{id} - Update patient record"
+-+    implemented: true
+-+    working: true
+-+    file: "/app/backend/server.py"
+-+    stuck_count: 0
+-+    priority: "high"
+-+    needs_retesting: false
+-+    status_history:
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "Successfully tested both full and partial updates. Updated_at timestamp properly updated. HTTPException handling fixed."
+-+
+-+  - task: "DELETE /api/patients/{id} - Delete patient record"
+-+    implemented: true
+-+    working: true
+-+    file: "/app/backend/server.py"
+-+    stuck_count: 1
+-+    priority: "high"
+-+    needs_retesting: false
+-+    status_history:
+-+      - working: false
+-+        agent: "testing"
+-+        comment: "Initial test failed - delete endpoint returning 500 instead of 404 for invalid IDs due to logger being undefined when exception handlers ran."
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "FIXED: Moved logger definition to top of file and added proper HTTPException handling. Now correctly returns 404 for invalid IDs and properly deletes records."
+-+
+-+  - task: "GET /api/storage-stats - Storage statistics"
+-+    implemented: true
+-+    working: true
+-+    file: "/app/backend/server.py"
+-+    stuck_count: 0
+-+    priority: "medium"
+-+    needs_retesting: false
+-+    status_history:
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "Successfully tested storage stats endpoint. Returns total_records, storage_used_mb, and storage_percentage with correct data types."
+-+
+-+  - task: "POST /api/export-records - Export all records"
+-+    implemented: true
+-+    working: true
+-+    file: "/app/backend/server.py"
+-+    stuck_count: 0
+-+    priority: "medium"
+-+    needs_retesting: false
+-+    status_history:
+-+      - working: true
+-+        agent: "testing"
+-+        comment: "Successfully tested export functionality. Returns records in CSV-ready format with proper field names (SlNo, Patient Name, etc.)."
+-+
+-+frontend:
+-+  # No frontend testing performed as per instructions
+-+
+-+metadata:
+-+  created_by: "testing_agent"
+-+  version: "1.0"
+-+  test_sequence: 1
+-+  run_ui: false
+-+
+-+test_plan:
+-+  current_focus:
+-+    - "All backend API endpoints tested and working"
+-+  stuck_tasks: []
+-+  test_all: true
+-+  test_priority: "high_first"
+-+
+-+agent_communication:
+-+  - agent: "testing"
+-+    message: "Comprehensive backend API testing completed. Found and fixed critical bug in exception handling where logger was undefined, causing 500 errors instead of proper 404 responses. All 18 test cases now pass with 100% success rate. Medical History System backend API is fully functional."
+-\ No newline at end of file
 diff --git a/test_result.md b/test_result.md
-index 187cba4..22eae46 100644
+index 22eae46..ce4b811 100644
 --- a/test_result.md
 +++ b/test_result.md
-@@ -100,4 +100,126 @@
+@@ -220,6 +220,80 @@ test_plan:
+   test_all: true
+   test_priority: "high_first"
  
- #====================================================================================================
- # Testing Data - Main Agent and testing sub agent both should log testing data below this section
--#====================================================================================================
++  - task: "Patient ID Auto-generation - P#### format"
++    implemented: true
++    working: true
++    file: "/app/backend/server.py"
++    stuck_count: 0
++    priority: "high"
++    needs_retesting: false
++    status_history:
++      - working: true
++        agent: "testing"
++        comment: "Successfully tested Patient ID auto-generation. First patient gets P0001, same name gets same ID, different name gets P0002. All working correctly."
++
++  - task: "Search by Patient ID functionality"
++    implemented: true
++    working: true
++    file: "/app/backend/server.py"
++    stuck_count: 0
++    priority: "high"
++    needs_retesting: false
++    status_history:
++      - working: true
++        agent: "testing"
++        comment: "Successfully tested search by Patient ID (e.g., P0001) and patient name. Search correctly returns matching records."
++
++  - task: "SQLite Database Storage"
++    implemented: true
++    working: true
++    file: "/app/backend/database.py"
++    stuck_count: 0
++    priority: "high"
++    needs_retesting: false
++    status_history:
++      - working: true
++        agent: "testing"
++        comment: "SQLite database file exists at /app/backend/medical_records.db (24576 bytes). Database properly initialized and functional."
++
++  - task: "Storage Stats with needs_backup flag"
++    implemented: true
++    working: true
++    file: "/app/backend/server.py"
++    stuck_count: 0
++    priority: "medium"
++    needs_retesting: false
++    status_history:
++      - working: true
++        agent: "testing"
++        comment: "Storage stats endpoint returns all required fields: total_records, storage_used_mb, storage_percentage, needs_backup. Logic correctly sets needs_backup=false when storage < 80%."
++
++  - task: "Google Drive Integration Endpoints"
++    implemented: true
++    working: true
++    file: "/app/backend/server.py"
++    stuck_count: 0
++    priority: "medium"
++    needs_retesting: false
++    status_history:
++      - working: true
++        agent: "testing"
++        comment: "Google Drive endpoints working: /drive/status returns connected:false, /drive/auth-url returns authorization_url. Proper error handling for missing credentials."
++
++  - task: "Export with Patient ID field"
++    implemented: true
++    working: true
++    file: "/app/backend/server.py"
++    stuck_count: 0
++    priority: "medium"
++    needs_retesting: false
++    status_history:
++      - working: true
++        agent: "testing"
++        comment: "Export functionality includes Patient ID field in all exported records. CSV format includes proper Patient ID column."
++
+ agent_communication:
+   - agent: "testing"
+-    message: "Comprehensive backend API testing completed. Found and fixed critical bug in exception handling where logger was undefined, causing 500 errors instead of proper 404 responses. All 18 test cases now pass with 100% success rate. Medical History System backend API is fully functional."
 \ No newline at end of file
-+#====================================================================================================
-+
-+user_problem_statement: "Test the Medical History System backend API with comprehensive tests for all endpoints including CRUD operations, search functionality, storage stats, and export features."
-+
-+backend:
-+  - task: "POST /api/patients - Create patient record"
-+    implemented: true
-+    working: true
-+    file: "/app/backend/server.py"
-+    stuck_count: 0
-+    priority: "high"
-+    needs_retesting: false
-+    status_history:
-+      - working: true
-+        agent: "testing"
-+        comment: "Successfully tested patient creation with realistic medical data. Auto-increment slno working correctly. All required fields returned including id, slno, timestamps."
-+
-+  - task: "GET /api/patients - Get all patients with sorting"
-+    implemented: true
-+    working: true
-+    file: "/app/backend/server.py"
-+    stuck_count: 0
-+    priority: "high"
-+    needs_retesting: false
-+    status_history:
-+      - working: true
-+        agent: "testing"
-+        comment: "Successfully tested fetching all patients. Records properly sorted by slno in descending order as expected."
-+
-+  - task: "GET /api/patients?search={query} - Search functionality"
-+    implemented: true
-+    working: true
-+    file: "/app/backend/server.py"
-+    stuck_count: 0
-+    priority: "high"
-+    needs_retesting: false
-+    status_history:
-+      - working: true
-+        agent: "testing"
-+        comment: "Successfully tested search across patient_name, diagnosis_details, and medicine_names. Case-insensitive search working correctly."
-+
-+  - task: "GET /api/patients/{id} - Get single patient"
-+    implemented: true
-+    working: true
-+    file: "/app/backend/server.py"
-+    stuck_count: 0
-+    priority: "high"
-+    needs_retesting: false
-+    status_history:
-+      - working: true
-+        agent: "testing"
-+        comment: "Successfully tested getting single patient by ID. Proper 404 handling for invalid IDs after fixing HTTPException handling."
-+
-+  - task: "PUT /api/patients/{id} - Update patient record"
-+    implemented: true
-+    working: true
-+    file: "/app/backend/server.py"
-+    stuck_count: 0
-+    priority: "high"
-+    needs_retesting: false
-+    status_history:
-+      - working: true
-+        agent: "testing"
-+        comment: "Successfully tested both full and partial updates. Updated_at timestamp properly updated. HTTPException handling fixed."
-+
-+  - task: "DELETE /api/patients/{id} - Delete patient record"
-+    implemented: true
-+    working: true
-+    file: "/app/backend/server.py"
-+    stuck_count: 1
-+    priority: "high"
-+    needs_retesting: false
-+    status_history:
-+      - working: false
-+        agent: "testing"
-+        comment: "Initial test failed - delete endpoint returning 500 instead of 404 for invalid IDs due to logger being undefined when exception handlers ran."
-+      - working: true
-+        agent: "testing"
-+        comment: "FIXED: Moved logger definition to top of file and added proper HTTPException handling. Now correctly returns 404 for invalid IDs and properly deletes records."
-+
-+  - task: "GET /api/storage-stats - Storage statistics"
-+    implemented: true
-+    working: true
-+    file: "/app/backend/server.py"
-+    stuck_count: 0
-+    priority: "medium"
-+    needs_retesting: false
-+    status_history:
-+      - working: true
-+        agent: "testing"
-+        comment: "Successfully tested storage stats endpoint. Returns total_records, storage_used_mb, and storage_percentage with correct data types."
-+
-+  - task: "POST /api/export-records - Export all records"
-+    implemented: true
-+    working: true
-+    file: "/app/backend/server.py"
-+    stuck_count: 0
-+    priority: "medium"
-+    needs_retesting: false
-+    status_history:
-+      - working: true
-+        agent: "testing"
-+        comment: "Successfully tested export functionality. Returns records in CSV-ready format with proper field names (SlNo, Patient Name, etc.)."
-+
-+frontend:
-+  # No frontend testing performed as per instructions
-+
-+metadata:
-+  created_by: "testing_agent"
-+  version: "1.0"
-+  test_sequence: 1
-+  run_ui: false
-+
-+test_plan:
-+  current_focus:
-+    - "All backend API endpoints tested and working"
-+  stuck_tasks: []
-+  test_all: true
-+  test_priority: "high_first"
-+
-+agent_communication:
-+  - agent: "testing"
 +    message: "Comprehensive backend API testing completed. Found and fixed critical bug in exception handling where logger was undefined, causing 500 errors instead of proper 404 responses. All 18 test cases now pass with 100% success rate. Medical History System backend API is fully functional."
++  - agent: "testing"
++    message: "NEW FEATURES TESTING COMPLETED: Tested all 6 new features requested - Patient ID auto-generation (P#### format), search by Patient ID, SQLite storage, storage stats with needs_backup flag, Google Drive integration endpoints, and export with Patient ID. All 16 test cases passed with 100% success rate. All new features are working correctly."
 \ No newline at end of file
