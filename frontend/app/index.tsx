@@ -706,6 +706,82 @@ export default function MedicalHistoryApp() {
     </View>
   );
 
+  // Welcome screen render
+  const renderWelcomeScreen = () => (
+    <View style={styles.welcomeContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.welcomeContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.welcomeIconContainer}>
+          <Ionicons name="medical" size={80} color="#007AFF" />
+          <View style={styles.heartbeatLine} />
+        </View>
+
+        <Text style={styles.welcomeTitle}>Welcome to Your Personal</Text>
+        <Text style={styles.welcomeTitleHighlight}>Medical History App</Text>
+
+        <View style={styles.welcomeCard}>
+          <Text style={styles.welcomeText}>
+            Thoughtfully maintained by <Text style={styles.maintainerName}>Binod Kumar</Text>.
+          </Text>
+          
+          <Text style={styles.welcomeDescription}>
+            This app is designed to make managing your health records simple, secure, and always within reach. 
+            Whether you're tracking past treatments, storing prescriptions, or maintaining important notes, 
+            everything is organized in one place for quick access.
+          </Text>
+
+          <Text style={styles.welcomeDescription}>
+            With a focus on ease of use and accuracy, Binod Kumar ensures that your medical information is 
+            kept up-to-date and accessible whenever you need it.
+          </Text>
+
+          <View style={styles.welcomeHighlight}>
+            <Ionicons name="heart" size={20} color="#FF3B30" />
+            <Text style={styles.welcomeHighlightText}>
+              Your health journey matters — and this app is here to help you manage it effortlessly.
+            </Text>
+          </View>
+        </View>
+
+        <TouchableOpacity 
+          style={styles.enterButton}
+          onPress={() => setShowWelcome(false)}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="enter" size={24} color="#fff" style={styles.enterIcon} />
+          <Text style={styles.enterButtonText}>Enter Medical History Section</Text>
+          <Ionicons name="arrow-forward" size={24} color="#fff" />
+        </TouchableOpacity>
+
+        <View style={styles.welcomeFeatures}>
+          <View style={styles.featureItem}>
+            <Ionicons name="shield-checkmark" size={24} color="#34C759" />
+            <Text style={styles.featureText}>Secure Storage</Text>
+          </View>
+          <View style={styles.featureItem}>
+            <Ionicons name="cloud-upload" size={24} color="#007AFF" />
+            <Text style={styles.featureText}>Cloud Backup</Text>
+          </View>
+          <View style={styles.featureItem}>
+            <Ionicons name="mic" size={24} color="#FF9500" />
+            <Text style={styles.featureText}>Voice Input</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
+
+  // Show welcome screen or main app
+  if (showWelcome) {
+    return (
+      <SafeAreaView style={styles.container}>
+        {renderWelcomeScreen()}
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
