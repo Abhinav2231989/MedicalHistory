@@ -98,6 +98,113 @@ async def root():
     return {"message": "Medical History System API with SQLite & Google Drive"}
 
 
+# Authentication Routes
+@api_router.post("/auth/check-phone")
+async def check_phone(login_data: UserLogin):
+    """Check if phone number exists"""
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            async with db.execute(
+                'SELECT * FROM users WHERE phone_number = ?',
+                (login_data.phone_number,)
+            ) as cursor:
+                row = await cursor.fetchone()
+                
+                if row:
+                    return {
+                        "exists": True,
+                        "user": User(
+                            id=row[0],
+                            phone_number=row[1],
+                            first_name=row[2],
+                            last_name=row[3],
+                            email=row[4],
+                            created_at=row[5]
+                        )
+                    }
+                else:
+                    return {"exists": False}
+    except Exception as e:
+        logger.error(f"Error checking phone: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/auth/register", response_model=User)
+async def register_user(user_data: UserRegister):
+    """Register a new user"""
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            # Check if phone already exists
+            async with db.execute(
+                'SELECT id FROM users WHERE phone_number = ?',
+                (user_data.phone_number,)
+            ) as cursor:
+                existing = await cursor.fetchone()
+                if existing:
+                    raise HTTPException(status_code=400, detail="Phone number already registered")
+            
+            # Insert new user
+            cursor = await db.execute(
+                '''
+                INSERT INTO users (phone_number, first_name, last_name, email)
+                VALUES (?, ?, ?, ?)
+                ''',
+                (user_data.phone_number, user_data.first_name, user_data.last_name, user_data.email)
+            )
+            await db.commit()
+            user_id = cursor.lastrowid
+            
+            # Fetch the created user
+            async with db.execute(
+                'SELECT * FROM users WHERE id = ?',
+                (user_id,)
+            ) as cursor:
+                row = await cursor.fetchone()
+                if row:
+                    return User(
+                        id=row[0],
+                        phone_number=row[1],
+                        first_name=row[2],
+                        last_name=row[3],
+                        email=row[4],
+                        created_at=row[5]
+                    )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error registering user: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/auth/login", response_model=User)
+async def login_user(login_data: UserLogin):
+    """Login with phone number"""
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            async with db.execute(
+                'SELECT * FROM users WHERE phone_number = ?',
+                (login_data.phone_number,)
+            ) as cursor:
+                row = await cursor.fetchone()
+                
+                if not row:
+                    raise HTTPException(status_code=404, detail="User not found")
+                
+                return User(
+                    id=row[0],
+                    phone_number=row[1],
+                    first_name=row[2],
+                    last_name=row[3],
+                    email=row[4],
+                    created_at=row[5]
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error during login: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @api_router.post("/patients", response_model=PatientRecord)
 async def create_patient_record(record: PatientRecordCreate):
     try:
