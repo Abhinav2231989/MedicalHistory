@@ -15,16 +15,30 @@ class Database:
     async def init_db(self):
         """Initialize database with required tables"""
         async with aiosqlite.connect(self.db_path) as db:
-            # Patient records table
+            # Users table
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    phone_number TEXT UNIQUE NOT NULL,
+                    first_name TEXT NOT NULL,
+                    last_name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Patient records table (with user_id foreign key)
             await db.execute('''
                 CREATE TABLE IF NOT EXISTS patient_records (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
                     patient_id TEXT NOT NULL,
                     patient_name TEXT NOT NULL,
                     diagnosis_details TEXT NOT NULL,
                     medicine_names TEXT NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
                 )
             ''')
             
