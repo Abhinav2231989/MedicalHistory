@@ -551,31 +551,35 @@ export default function MedicalHistoryApp() {
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.submitButtonText}>
-              {editingId ? 'Update Record' : 'Save Record'}
-            </Text>
-          )}
-        </TouchableOpacity>
-
-        {editingId && (
+        <View style={styles.formButtonsContainer}>
           <TouchableOpacity
-            style={styles.cancelButton}
+            style={styles.backButton}
             onPress={() => {
               resetForm();
               setCurrentScreen('list');
             }}
           >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
+            <Ionicons name="arrow-back" size={20} color="#007AFF" />
+            <Text style={styles.backButtonText}>Back</Text>
           </TouchableOpacity>
-        )}
+
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="save" size={20} color="#fff" style={styles.buttonIcon} />
+                <Text style={styles.submitButtonText}>
+                  {editingId ? 'Update Record' : 'Save Record'}
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
