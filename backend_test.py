@@ -1,34 +1,17 @@
 #!/usr/bin/env python3
 """
 Comprehensive Backend API Tests for Medical History System
-Tests all endpoints with realistic medical data
+Testing NEW FEATURES: Patient ID auto-generation, SQLite storage, Google Drive integration
 """
 
 import requests
 import json
+import time
 import os
-from datetime import datetime
-import sys
+from pathlib import Path
 
-# Get backend URL from frontend .env file
-def get_backend_url():
-    try:
-        with open('/app/frontend/.env', 'r') as f:
-            for line in f:
-                if line.startswith('EXPO_PUBLIC_BACKEND_URL='):
-                    return line.split('=', 1)[1].strip().strip('"')
-        return None
-    except Exception as e:
-        print(f"Error reading frontend .env: {e}")
-        return None
-
-BASE_URL = get_backend_url()
-if not BASE_URL:
-    print("❌ Could not get backend URL from frontend/.env")
-    sys.exit(1)
-
-API_URL = f"{BASE_URL}/api"
-print(f"🔗 Testing API at: {API_URL}")
+# Get backend URL from frontend .env
+BACKEND_URL = "https://0514b52e-e3d0-489f-8ea1-868232439255.preview.emergentagent.com/api"
 
 # Test data with realistic medical information
 TEST_PATIENTS = [
