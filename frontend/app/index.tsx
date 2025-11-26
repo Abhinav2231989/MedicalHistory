@@ -430,6 +430,15 @@ export default function MedicalHistoryApp() {
         </TouchableOpacity>
       </View>
 
+      {!searchQuery && (
+        <View style={styles.filterInfoBanner}>
+          <Ionicons name="calendar" size={16} color="#007AFF" />
+          <Text style={styles.filterInfoText}>
+            Showing records from last 7 days. Use search to view all records.
+          </Text>
+        </View>
+      )}
+
       {loading && records.length === 0 ? (
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
