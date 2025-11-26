@@ -127,6 +127,8 @@ async def get_patient_record(record_id: str):
         
         record["id"] = str(record["_id"])
         return PatientRecord(**record)
+    except HTTPException:
+        raise  # Re-raise HTTPException as-is
     except Exception as e:
         logger.error(f"Error fetching patient record: {e}")
         raise HTTPException(status_code=404, detail="Record not found")
