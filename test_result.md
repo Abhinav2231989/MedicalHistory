@@ -101,3 +101,125 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Test the Medical History System backend API with comprehensive tests for all endpoints including CRUD operations, search functionality, storage stats, and export features."
+
+backend:
+  - task: "POST /api/patients - Create patient record"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested patient creation with realistic medical data. Auto-increment slno working correctly. All required fields returned including id, slno, timestamps."
+
+  - task: "GET /api/patients - Get all patients with sorting"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested fetching all patients. Records properly sorted by slno in descending order as expected."
+
+  - task: "GET /api/patients?search={query} - Search functionality"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested search across patient_name, diagnosis_details, and medicine_names. Case-insensitive search working correctly."
+
+  - task: "GET /api/patients/{id} - Get single patient"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested getting single patient by ID. Proper 404 handling for invalid IDs after fixing HTTPException handling."
+
+  - task: "PUT /api/patients/{id} - Update patient record"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested both full and partial updates. Updated_at timestamp properly updated. HTTPException handling fixed."
+
+  - task: "DELETE /api/patients/{id} - Delete patient record"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "Initial test failed - delete endpoint returning 500 instead of 404 for invalid IDs due to logger being undefined when exception handlers ran."
+      - working: true
+        agent: "testing"
+        comment: "FIXED: Moved logger definition to top of file and added proper HTTPException handling. Now correctly returns 404 for invalid IDs and properly deletes records."
+
+  - task: "GET /api/storage-stats - Storage statistics"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested storage stats endpoint. Returns total_records, storage_used_mb, and storage_percentage with correct data types."
+
+  - task: "POST /api/export-records - Export all records"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested export functionality. Returns records in CSV-ready format with proper field names (SlNo, Patient Name, etc.)."
+
+frontend:
+  # No frontend testing performed as per instructions
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "All backend API endpoints tested and working"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "testing"
+    message: "Comprehensive backend API testing completed. Found and fixed critical bug in exception handling where logger was undefined, causing 500 errors instead of proper 404 responses. All 18 test cases now pass with 100% success rate. Medical History System backend API is fully functional."
