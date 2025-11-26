@@ -255,6 +255,7 @@ async def get_all_patients(user_id: Optional[int] = None, search: Optional[str] 
             if user_id:
                 # Filter by user_id if provided
                 if search:
+                    # When searching, show ALL matching records (no date filter)
                     query = '''
                         SELECT * FROM patient_records 
                         WHERE user_id = ?
@@ -268,11 +269,19 @@ async def get_all_patients(user_id: Optional[int] = None, search: Optional[str] 
                     async with db.execute(query, (user_id, search_pattern, search_pattern, search_pattern, search_pattern)) as cursor:
                         rows = await cursor.fetchall()
                 else:
-                    async with db.execute('SELECT * FROM patient_records WHERE user_id = ? ORDER BY id DESC', (user_id,)) as cursor:
+                    # No search - show only last 7 days records
+                    query = '''
+                        SELECT * FROM patient_records 
+                        WHERE user_id = ?
+                        AND created_at >= datetime('now', '-7 days')
+                        ORDER BY id DESC
+                    '''
+                    async with db.execute(query, (user_id,)) as cursor:
                         rows = await cursor.fetchall()
             else:
                 # No user_id provided, return all records (for backward compatibility)
                 if search:
+                    # When searching, show ALL matching records (no date filter)
                     query = '''
                         SELECT * FROM patient_records 
                         WHERE LOWER(patient_name) LIKE LOWER(?) 
@@ -285,7 +294,13 @@ async def get_all_patients(user_id: Optional[int] = None, search: Optional[str] 
                     async with db.execute(query, (search_pattern, search_pattern, search_pattern, search_pattern)) as cursor:
                         rows = await cursor.fetchall()
                 else:
-                    async with db.execute('SELECT * FROM patient_records ORDER BY id DESC') as cursor:
+                    # No search - show only last 7 days records
+                    query = '''
+                        SELECT * FROM patient_records 
+                        WHERE created_at >= datetime('now', '-7 days')
+                        ORDER BY id DESC
+                    '''
+                    async with db.execute(query) as cursor:
                         rows = await cursor.fetchall()
             
             records = []
