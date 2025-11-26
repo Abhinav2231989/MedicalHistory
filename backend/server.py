@@ -151,6 +151,8 @@ async def update_patient_record(record_id: str, update_data: PatientRecordUpdate
         
         result["id"] = str(result["_id"])
         return PatientRecord(**result)
+    except HTTPException:
+        raise  # Re-raise HTTPException as-is
     except Exception as e:
         logger.error(f"Error updating patient record: {e}")
         raise HTTPException(status_code=500, detail=str(e))
