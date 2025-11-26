@@ -1049,6 +1049,24 @@ const styles = StyleSheet.create({
   voiceSearchButton: {
     padding: 8,
   },
+  filterInfoBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginHorizontal: 16,
+    marginTop: -8,
+    marginBottom: 8,
+    borderRadius: 8,
+    gap: 8,
+  },
+  filterInfoText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#007AFF',
+    fontWeight: '500',
+  },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
