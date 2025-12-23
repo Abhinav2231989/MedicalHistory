@@ -1336,32 +1336,46 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
+    paddingVertical: 12,
     paddingHorizontal: 16,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
   },
+  headerContent: {
+    flex: 1,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  headerTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 8,
-    gap: 12,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#000',
+    marginLeft: 8,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#007AFF',
+    marginTop: 4,
+    marginLeft: 36,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   headerLogoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFE5E5',
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
     gap: 4,
@@ -1370,22 +1384,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#FF3B30',
     fontWeight: '600',
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  headerUsername: {
-    fontSize: 13,
-    color: '#007AFF',
-    fontWeight: '600',
-  },
-  headerDriveIcon: {
-    marginRight: 0,
-  },
-  logoutButton: {
-    padding: 4,
   },
   screen: {
     flex: 1,
