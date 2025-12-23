@@ -12,6 +12,7 @@ import aiosqlite
 import json
 import tempfile
 import shutil
+import bcrypt
 
 # Google Drive imports
 from googleapiclient.discovery import build
