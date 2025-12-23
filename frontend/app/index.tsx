@@ -277,6 +277,7 @@ export default function MedicalHistoryApp() {
     if (text.length > 2 || text.length === 0) {
       fetchRecords(text);
     }
+    resetInactivityTimer();
   };
 
   const startRecording = async () => {
