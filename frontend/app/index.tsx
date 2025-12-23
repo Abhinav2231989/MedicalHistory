@@ -135,6 +135,7 @@ export default function MedicalHistoryApp() {
         await AsyncStorage.setItem('loggedInUserName', data.full_name);
         fetchRecords();
         fetchStorageStats();
+        resetInactivityTimer(); // Start the inactivity timer on successful login
       } else {
         Alert.alert('Error', data.message || 'Please enter the correct PIN');
         setPin('');
