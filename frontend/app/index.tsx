@@ -1021,20 +1021,21 @@ export default function MedicalHistoryApp() {
           <View style={styles.header}>
             <View style={styles.headerLeft}>
               <Ionicons name="medical" size={28} color="#007AFF" />
-              <View style={styles.headerTextContainer}>
+              <View style={styles.headerTitleContainer}>
                 <Text style={styles.headerTitle}>Medical History</Text>
-                {loggedInUserName && (
-                  <Text style={styles.headerSubtitle}>Welcome, {loggedInUserName}</Text>
-                )}
+                <TouchableOpacity onPress={handleLogout} style={styles.headerLogoutButton}>
+                  <Ionicons name="log-out-outline" size={20} color="#FF3B30" />
+                  <Text style={styles.logoutText}>Logout</Text>
+                </TouchableOpacity>
               </View>
             </View>
             <View style={styles.headerRight}>
               {driveConnected && (
                 <Ionicons name="cloud-done" size={20} color="#34C759" style={styles.headerDriveIcon} />
               )}
-              <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-                <Ionicons name="log-out" size={24} color="#FF3B30" />
-              </TouchableOpacity>
+              {loggedInUserName && (
+                <Text style={styles.headerUsername}>Welcome, {loggedInUserName}</Text>
+              )}
             </View>
           </View>
 
