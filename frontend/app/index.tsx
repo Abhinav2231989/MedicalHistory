@@ -360,6 +360,8 @@ export default function MedicalHistoryApp() {
       return;
     }
 
+    resetInactivityTimer();
+
     try {
       setLoading(true);
       const url = editingId
