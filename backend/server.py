@@ -39,6 +39,9 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # Models
+class PinLogin(BaseModel):
+    pin: str
+
 class User(BaseModel):
     id: Optional[int] = None
     phone_number: str
