@@ -177,7 +177,19 @@ export default function MedicalHistoryApp() {
     
     // Request audio permissions
     Audio.requestPermissionsAsync();
-  }, []);
+    
+    // Start inactivity timer if authenticated
+    if (isAuthenticated) {
+      resetInactivityTimer();
+    }
+    
+    // Cleanup timer on unmount
+    return () => {
+      if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+      }
+    };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (storageStats && storageStats.needs_backup && driveConnected) {
