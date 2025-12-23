@@ -170,11 +170,16 @@ export default function MedicalHistoryApp() {
               setInactivityTimer(null);
             }
             
+            // Reset all states
             setIsAuthenticated(false);
             setShowPinLogin(true);
+            setShowWelcome(false);
             setLoggedInUserName('');
             setPin('');
             setFullName('');
+            setCurrentScreen('list');
+            
+            // Clear AsyncStorage
             await AsyncStorage.removeItem('isAuthenticated');
             await AsyncStorage.removeItem('loggedInUserName');
           },
