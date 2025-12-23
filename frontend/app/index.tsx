@@ -58,12 +58,6 @@ export default function MedicalHistoryApp() {
   const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
   const [driveConnected, setDriveConnected] = useState(false);
   
-  // Auth form states
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  
   // Form states
   const [patientName, setPatientName] = useState('');
   const [diagnosisDetails, setDiagnosisDetails] = useState('');
@@ -71,6 +65,40 @@ export default function MedicalHistoryApp() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+
+  const handlePinLogin = async () => {
+    if (!pin || pin.length !== 6) {
+      Alert.alert('Error', 'Please enter a 6-digit PIN');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/api/auth/validate-pin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setIsAuthenticated(true);
+        setShowPinLogin(false);
+        await AsyncStorage.setItem('isAuthenticated', 'true');
+        fetchRecords();
+        fetchStorageStats();
+      } else {
+        Alert.alert('Error', 'Please enter the correct PIN');
+        setPin('');
+      }
+    } catch (error) {
+      console.error('PIN validation error:', error);
+      Alert.alert('Error', 'Failed to validate PIN');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchRecords();
