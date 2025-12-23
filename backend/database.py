@@ -27,6 +27,16 @@ class Database:
                 )
             ''')
             
+            # Settings table for PIN
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    setting_key TEXT UNIQUE NOT NULL,
+                    setting_value TEXT NOT NULL,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
             # Patient records table (with user_id foreign key)
             await db.execute('''
                 CREATE TABLE IF NOT EXISTS patient_records (
