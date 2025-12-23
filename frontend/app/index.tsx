@@ -158,6 +158,12 @@ export default function MedicalHistoryApp() {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
+            // Clear the inactivity timer
+            if (inactivityTimer) {
+              clearTimeout(inactivityTimer);
+              setInactivityTimer(null);
+            }
+            
             setIsAuthenticated(false);
             setShowPinLogin(true);
             setLoggedInUserName('');
