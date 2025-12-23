@@ -94,12 +94,61 @@ class VoiceSearchRequest(BaseModel):
 async def startup():
     await db_instance.init_db()
     logger.info("Application started, database initialized")
+    
+    # Initialize PIN if not exists
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            async with db.execute('SELECT setting_value FROM settings WHERE setting_key = ?', ('app_pin',)) as cursor:
+                pin_row = await cursor.fetchone()
+                
+                if not pin_row:
+                    # Hash the default PIN 258411
+                    default_pin = "258411"
+                    hashed_pin = bcrypt.hashpw(default_pin.encode('utf-8'), bcrypt.gensalt())
+                    
+                    await db.execute(
+                        'INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)',
+                        ('app_pin', hashed_pin.decode('utf-8'))
+                    )
+                    await db.commit()
+                    logger.info("Default PIN initialized")
+    except Exception as e:
+        logger.error(f"Error initializing PIN: {e}")
 
 
 # Routes
 @api_router.get("/")
 async def root():
     return {"message": "Medical History System API with SQLite & Google Drive"}
+
+
+# PIN Authentication
+@api_router.post("/auth/validate-pin")
+async def validate_pin(pin_data: PinLogin):
+    """Validate PIN for app access"""
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            async with db.execute(
+                'SELECT setting_value FROM settings WHERE setting_key = ?',
+                ('app_pin',)
+            ) as cursor:
+                row = await cursor.fetchone()
+                
+                if not row:
+                    raise HTTPException(status_code=500, detail="PIN not configured")
+                
+                stored_hash = row[0].encode('utf-8')
+                entered_pin = pin_data.pin.encode('utf-8')
+                
+                if bcrypt.checkpw(entered_pin, stored_hash):
+                    return {"success": True, "message": "PIN validated successfully"}
+                else:
+                    return {"success": False, "message": "Incorrect PIN"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error validating PIN: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # Authentication Routes
