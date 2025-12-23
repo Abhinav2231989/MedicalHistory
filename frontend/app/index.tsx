@@ -67,6 +67,43 @@ export default function MedicalHistoryApp() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [inactivityTimer, setInactivityTimer] = useState<NodeJS.Timeout | null>(null);
+
+  // Reset inactivity timer
+  const resetInactivityTimer = () => {
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+    }
+    
+    // Set 30 minute timeout (30 * 60 * 1000 milliseconds)
+    const timer = setTimeout(() => {
+      handleAutoLogout();
+    }, 30 * 60 * 1000);
+    
+    setInactivityTimer(timer);
+  };
+
+  // Auto logout handler
+  const handleAutoLogout = async () => {
+    Alert.alert(
+      'Session Expired',
+      'You have been logged out due to inactivity.',
+      [
+        {
+          text: 'OK',
+          onPress: async () => {
+            setIsAuthenticated(false);
+            setShowPinLogin(true);
+            setLoggedInUserName('');
+            setPin('');
+            setFullName('');
+            await AsyncStorage.removeItem('isAuthenticated');
+            await AsyncStorage.removeItem('loggedInUserName');
+          },
+        },
+      ]
+    );
+  };
 
   const handlePinLogin = async () => {
     if (!fullName || !fullName.trim()) {
