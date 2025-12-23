@@ -1343,28 +1343,44 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
-  headerTextContainer: {
+  headerTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginLeft: 8,
+    gap: 12,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#000',
   },
-  headerSubtitle: {
+  headerLogoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFE5E5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+  },
+  logoutText: {
     fontSize: 13,
-    color: '#007AFF',
-    marginTop: 2,
+    color: '#FF3B30',
+    fontWeight: '600',
   },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
+  },
+  headerUsername: {
+    fontSize: 13,
+    color: '#007AFF',
+    fontWeight: '600',
   },
   headerDriveIcon: {
-    marginRight: 4,
+    marginRight: 0,
   },
   logoutButton: {
     padding: 4,
