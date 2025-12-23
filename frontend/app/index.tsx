@@ -100,7 +100,8 @@ export default function MedicalHistoryApp() {
           text: 'OK',
           onPress: async () => {
             setIsAuthenticated(false);
-            setShowPinLogin(true);
+            setShowPinLogin(false);
+            setShowWelcome(true);  // Go to welcome page (home page)
             setLoggedInUserName('');
             setPin('');
             setFullName('');
