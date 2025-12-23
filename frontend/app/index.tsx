@@ -871,19 +871,30 @@ export default function MedicalHistoryApp() {
     <View style={styles.pinContainer}>
       <ScrollView contentContainerStyle={styles.pinContent}>
         <Ionicons name="lock-closed" size={80} color="#007AFF" />
-        <Text style={styles.pinTitle}>Enter PIN</Text>
-        <Text style={styles.pinSubtitle}>Please enter your 6-digit PIN to access medical records</Text>
+        <Text style={styles.pinTitle}>Login</Text>
+        <Text style={styles.pinSubtitle}>Enter your name and PIN to access medical records</Text>
 
         <View style={styles.pinInputGroup}>
+          <Text style={styles.pinInputLabel}>Full Name</Text>
+          <TextInput
+            style={styles.pinTextInput}
+            placeholder="Enter your full name"
+            value={fullName}
+            onChangeText={setFullName}
+            autoCapitalize="words"
+          />
+        </View>
+
+        <View style={styles.pinInputGroup}>
+          <Text style={styles.pinInputLabel}>PIN</Text>
           <TextInput
             style={styles.pinInput}
-            placeholder="Enter PIN"
+            placeholder="Enter 6-digit PIN"
             value={pin}
             onChangeText={setPin}
             keyboardType="number-pad"
             maxLength={6}
             secureTextEntry
-            autoFocus
           />
         </View>
 
@@ -906,6 +917,7 @@ export default function MedicalHistoryApp() {
           setShowPinLogin(false);
           setShowWelcome(true);
           setPin('');
+          setFullName('');
         }}>
           <Text style={styles.pinBackText}>← Back to Welcome</Text>
         </TouchableOpacity>
