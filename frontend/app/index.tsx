@@ -805,7 +805,10 @@ export default function MedicalHistoryApp() {
 
         <TouchableOpacity 
           style={styles.enterButton}
-          onPress={() => setShowWelcome(false)}
+          onPress={() => {
+            setShowWelcome(false);
+            setShowPinLogin(true);
+          }}
           activeOpacity={0.8}
         >
           <Ionicons name="enter" size={24} color="#fff" style={styles.enterIcon} />
