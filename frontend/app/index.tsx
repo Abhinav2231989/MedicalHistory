@@ -48,9 +48,9 @@ interface User {
 
 export default function MedicalHistoryApp() {
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showPinLogin, setShowPinLogin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showRegistration, setShowRegistration] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [pin, setPin] = useState('');
   const [currentScreen, setCurrentScreen] = useState<'list' | 'form' | 'settings'>('list');
   const [records, setRecords] = useState<PatientRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
