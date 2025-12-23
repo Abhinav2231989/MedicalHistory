@@ -143,12 +143,13 @@ export default function MedicalHistoryApp() {
         fetchStorageStats();
         resetInactivityTimer(); // Start the inactivity timer on successful login
       } else {
-        Alert.alert('Error', data.message || 'Please enter the correct PIN');
-        setPin('');
+        // Show error alert for incorrect PIN
+        Alert.alert('Error', 'Please enter the correct PIN');
+        setPin(''); // Clear the PIN field
       }
     } catch (error) {
       console.error('PIN validation error:', error);
-      Alert.alert('Error', 'Failed to validate PIN');
+      Alert.alert('Error', 'Failed to validate PIN. Please try again.');
     } finally {
       setLoading(false);
     }
