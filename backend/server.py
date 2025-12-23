@@ -128,6 +128,9 @@ async def root():
 async def validate_pin(pin_data: PinLogin):
     """Validate PIN for app access"""
     try:
+        if not pin_data.full_name or not pin_data.full_name.strip():
+            return {"success": False, "message": "Please enter your full name"}
+        
         async with aiosqlite.connect(DB_PATH) as db:
             async with db.execute(
                 'SELECT setting_value FROM settings WHERE setting_key = ?',
@@ -142,7 +145,11 @@ async def validate_pin(pin_data: PinLogin):
                 entered_pin = pin_data.pin.encode('utf-8')
                 
                 if bcrypt.checkpw(entered_pin, stored_hash):
-                    return {"success": True, "message": "PIN validated successfully"}
+                    return {
+                        "success": True, 
+                        "message": "PIN validated successfully",
+                        "full_name": pin_data.full_name
+                    }
                 else:
                     return {"success": False, "message": "Incorrect PIN"}
     except HTTPException:
