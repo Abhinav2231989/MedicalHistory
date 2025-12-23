@@ -1019,22 +1019,24 @@ export default function MedicalHistoryApp() {
       <TouchableWithoutFeedback onPress={resetInactivityTimer}>
         <View style={{ flex: 1 }}>
           <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <Ionicons name="medical" size={28} color="#007AFF" />
-              <View style={styles.headerTitleContainer}>
-                <Text style={styles.headerTitle}>Medical History</Text>
-                <TouchableOpacity onPress={handleLogout} style={styles.headerLogoutButton}>
-                  <Ionicons name="log-out-outline" size={20} color="#FF3B30" />
-                  <Text style={styles.logoutText}>Logout</Text>
-                </TouchableOpacity>
+            <View style={styles.headerContent}>
+              <View style={styles.headerTop}>
+                <View style={styles.headerLeft}>
+                  <Ionicons name="medical" size={28} color="#007AFF" />
+                  <Text style={styles.headerTitle}>Medical History</Text>
+                </View>
+                <View style={styles.headerActions}>
+                  <TouchableOpacity onPress={handleLogout} style={styles.headerLogoutButton}>
+                    <Ionicons name="log-out-outline" size={18} color="#FF3B30" />
+                    <Text style={styles.logoutText}>Logout</Text>
+                  </TouchableOpacity>
+                  {driveConnected && (
+                    <Ionicons name="cloud-done" size={20} color="#34C759" />
+                  )}
+                </View>
               </View>
-            </View>
-            <View style={styles.headerRight}>
-              {driveConnected && (
-                <Ionicons name="cloud-done" size={20} color="#34C759" style={styles.headerDriveIcon} />
-              )}
               {loggedInUserName && (
-                <Text style={styles.headerUsername}>Welcome, {loggedInUserName}</Text>
+                <Text style={styles.headerSubtitle}>Welcome, {loggedInUserName}</Text>
               )}
             </View>
           </View>
