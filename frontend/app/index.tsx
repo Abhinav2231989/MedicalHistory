@@ -69,6 +69,11 @@ export default function MedicalHistoryApp() {
   const [isRecording, setIsRecording] = useState(false);
 
   const handlePinLogin = async () => {
+    if (!fullName || !fullName.trim()) {
+      Alert.alert('Error', 'Please enter your full name');
+      return;
+    }
+    
     if (!pin || pin.length !== 6) {
       Alert.alert('Error', 'Please enter a 6-digit PIN');
       return;
@@ -79,19 +84,21 @@ export default function MedicalHistoryApp() {
       const response = await fetch(`${API_URL}/api/auth/validate-pin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin }),
+        body: JSON.stringify({ pin, full_name: fullName }),
       });
 
       const data = await response.json();
 
       if (data.success) {
         setIsAuthenticated(true);
+        setLoggedInUserName(data.full_name);
         setShowPinLogin(false);
         await AsyncStorage.setItem('isAuthenticated', 'true');
+        await AsyncStorage.setItem('loggedInUserName', data.full_name);
         fetchRecords();
         fetchStorageStats();
       } else {
-        Alert.alert('Error', 'Please enter the correct PIN');
+        Alert.alert('Error', data.message || 'Please enter the correct PIN');
         setPin('');
       }
     } catch (error) {
@@ -100,6 +107,29 @@ export default function MedicalHistoryApp() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            setIsAuthenticated(false);
+            setShowPinLogin(true);
+            setLoggedInUserName('');
+            setPin('');
+            setFullName('');
+            await AsyncStorage.removeItem('isAuthenticated');
+            await AsyncStorage.removeItem('loggedInUserName');
+          },
+        },
+      ]
+    );
   };
 
   useEffect(() => {
