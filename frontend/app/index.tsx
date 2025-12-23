@@ -171,10 +171,10 @@ export default function MedicalHistoryApp() {
               setInactivityTimer(null);
             }
             
-            // Reset all states
+            // Reset all states to go back to welcome page (home page)
             setIsAuthenticated(false);
-            setShowPinLogin(true);
-            setShowWelcome(false);
+            setShowPinLogin(false);
+            setShowWelcome(true);  // Show welcome page (home page with Binod Kumar message)
             setLoggedInUserName('');
             setPin('');
             setFullName('');
