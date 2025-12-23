@@ -157,6 +157,7 @@ export default function MedicalHistoryApp() {
   };
 
   const handleLogout = () => {
+    console.log('Logout button clicked'); // Debug log
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
@@ -166,6 +167,7 @@ export default function MedicalHistoryApp() {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
+            console.log('Logout confirmed'); // Debug log
             // Clear the inactivity timer
             if (inactivityTimer) {
               clearTimeout(inactivityTimer);
@@ -184,6 +186,8 @@ export default function MedicalHistoryApp() {
             // Clear AsyncStorage
             await AsyncStorage.removeItem('isAuthenticated');
             await AsyncStorage.removeItem('loggedInUserName');
+            
+            console.log('Logout complete, should show welcome screen'); // Debug log
           },
         },
       ]
