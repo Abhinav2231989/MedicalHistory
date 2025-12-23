@@ -86,6 +86,12 @@ export default function MedicalHistoryApp() {
 
   // Auto logout handler
   const handleAutoLogout = async () => {
+    // Clear the timer
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+      setInactivityTimer(null);
+    }
+    
     Alert.alert(
       'Session Expired',
       'You have been logged out due to inactivity.',
