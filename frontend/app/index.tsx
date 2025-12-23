@@ -51,6 +51,8 @@ export default function MedicalHistoryApp() {
   const [showPinLogin, setShowPinLogin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pin, setPin] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [loggedInUserName, setLoggedInUserName] = useState('');
   const [currentScreen, setCurrentScreen] = useState<'list' | 'form' | 'settings'>('list');
   const [records, setRecords] = useState<PatientRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
