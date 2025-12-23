@@ -951,11 +951,23 @@ export default function MedicalHistoryApp() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Ionicons name="medical" size={28} color="#007AFF" />
-        <Text style={styles.headerTitle}>Medical History</Text>
-        {driveConnected && (
-          <Ionicons name="cloud-done" size={20} color="#34C759" style={styles.headerDriveIcon} />
-        )}
+        <View style={styles.headerLeft}>
+          <Ionicons name="medical" size={28} color="#007AFF" />
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>Medical History</Text>
+            {loggedInUserName && (
+              <Text style={styles.headerSubtitle}>Welcome, {loggedInUserName}</Text>
+            )}
+          </View>
+        </View>
+        <View style={styles.headerRight}>
+          {driveConnected && (
+            <Ionicons name="cloud-done" size={20} color="#34C759" style={styles.headerDriveIcon} />
+          )}
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Ionicons name="log-out" size={24} color="#FF3B30" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {currentScreen === 'list' && renderListScreen()}
