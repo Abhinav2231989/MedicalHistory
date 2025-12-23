@@ -994,11 +994,6 @@ export default function MedicalHistoryApp() {
         }}>
           <Text style={styles.pinBackText}>← Back to Welcome</Text>
         </TouchableOpacity>
-
-        <View style={styles.pinHintContainer}>
-          <Ionicons name="information-circle" size={16} color="#666" />
-          <Text style={styles.pinHintText}>PIN: 258411</Text>
-        </View>
       </ScrollView>
     </View>
   );
