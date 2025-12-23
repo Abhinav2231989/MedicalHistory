@@ -41,6 +41,7 @@ api_router = APIRouter(prefix="/api")
 # Models
 class PinLogin(BaseModel):
     pin: str
+    full_name: str
 
 class User(BaseModel):
     id: Optional[int] = None
