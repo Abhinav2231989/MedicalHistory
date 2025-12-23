@@ -999,79 +999,90 @@ export default function MedicalHistoryApp() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Ionicons name="medical" size={28} color="#007AFF" />
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Medical History</Text>
-            {loggedInUserName && (
-              <Text style={styles.headerSubtitle}>Welcome, {loggedInUserName}</Text>
-            )}
+      <TouchableWithoutFeedback onPress={resetInactivityTimer}>
+        <View style={{ flex: 1 }}>
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              <Ionicons name="medical" size={28} color="#007AFF" />
+              <View style={styles.headerTextContainer}>
+                <Text style={styles.headerTitle}>Medical History</Text>
+                {loggedInUserName && (
+                  <Text style={styles.headerSubtitle}>Welcome, {loggedInUserName}</Text>
+                )}
+              </View>
+            </View>
+            <View style={styles.headerRight}>
+              {driveConnected && (
+                <Ionicons name="cloud-done" size={20} color="#34C759" style={styles.headerDriveIcon} />
+              )}
+              <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+                <Ionicons name="log-out" size={24} color="#FF3B30" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {currentScreen === 'list' && renderListScreen()}
+          {currentScreen === 'form' && renderFormScreen()}
+          {currentScreen === 'settings' && renderSettingsScreen()}
+
+          <View style={styles.tabBar}>
+            <TouchableOpacity
+              style={styles.tabItem}
+              onPress={() => {
+                setCurrentScreen('list');
+                resetInactivityTimer();
+              }}
+            >
+              <Ionicons
+                name={currentScreen === 'list' ? 'list' : 'list-outline'}
+                size={28}
+                color={currentScreen === 'list' ? '#007AFF' : '#8E8E93'}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentScreen === 'list' && styles.tabLabelActive,
+                ]}
+              >
+                Records
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => {
+                resetForm();
+                setCurrentScreen('form');
+                resetInactivityTimer();
+              }}
+            >
+              <Ionicons name="add" size={32} color="#fff" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.tabItem}
+              onPress={() => {
+                setCurrentScreen('settings');
+                resetInactivityTimer();
+              }}
+            >
+              <Ionicons
+                name={currentScreen === 'settings' ? 'settings' : 'settings-outline'}
+                size={28}
+                color={currentScreen === 'settings' ? '#007AFF' : '#8E8E93'}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  currentScreen === 'settings' && styles.tabLabelActive,
+                ]}
+              >
+                Settings
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.headerRight}>
-          {driveConnected && (
-            <Ionicons name="cloud-done" size={20} color="#34C759" style={styles.headerDriveIcon} />
-          )}
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Ionicons name="log-out" size={24} color="#FF3B30" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {currentScreen === 'list' && renderListScreen()}
-      {currentScreen === 'form' && renderFormScreen()}
-      {currentScreen === 'settings' && renderSettingsScreen()}
-
-      <View style={styles.tabBar}>
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => setCurrentScreen('list')}
-        >
-          <Ionicons
-            name={currentScreen === 'list' ? 'list' : 'list-outline'}
-            size={28}
-            color={currentScreen === 'list' ? '#007AFF' : '#8E8E93'}
-          />
-          <Text
-            style={[
-              styles.tabLabel,
-              currentScreen === 'list' && styles.tabLabelActive,
-            ]}
-          >
-            Records
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => {
-            resetForm();
-            setCurrentScreen('form');
-          }}
-        >
-          <Ionicons name="add" size={32} color="#fff" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => setCurrentScreen('settings')}
-        >
-          <Ionicons
-            name={currentScreen === 'settings' ? 'settings' : 'settings-outline'}
-            size={28}
-            color={currentScreen === 'settings' ? '#007AFF' : '#8E8E93'}
-          />
-          <Text
-            style={[
-              styles.tabLabel,
-              currentScreen === 'settings' && styles.tabLabelActive,
-            ]}
-          >
-            Settings
-          </Text>
-        </TouchableOpacity>
-      </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }
