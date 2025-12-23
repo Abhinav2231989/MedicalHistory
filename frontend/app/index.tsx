@@ -834,11 +834,72 @@ export default function MedicalHistoryApp() {
     </View>
   );
 
+  // PIN Login screen render
+  const renderPinLoginScreen = () => (
+    <View style={styles.pinContainer}>
+      <ScrollView contentContainerStyle={styles.pinContent}>
+        <Ionicons name="lock-closed" size={80} color="#007AFF" />
+        <Text style={styles.pinTitle}>Enter PIN</Text>
+        <Text style={styles.pinSubtitle}>Please enter your 6-digit PIN to access medical records</Text>
+
+        <View style={styles.pinInputGroup}>
+          <TextInput
+            style={styles.pinInput}
+            placeholder="Enter PIN"
+            value={pin}
+            onChangeText={setPin}
+            keyboardType="number-pad"
+            maxLength={6}
+            secureTextEntry
+            autoFocus
+          />
+        </View>
+
+        <TouchableOpacity
+          style={styles.pinButton}
+          onPress={handlePinLogin}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <>
+              <Ionicons name="log-in" size={20} color="#fff" style={styles.buttonIcon} />
+              <Text style={styles.pinButtonText}>Login</Text>
+            </>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => {
+          setShowPinLogin(false);
+          setShowWelcome(true);
+          setPin('');
+        }}>
+          <Text style={styles.pinBackText}>← Back to Welcome</Text>
+        </TouchableOpacity>
+
+        <View style={styles.pinHintContainer}>
+          <Ionicons name="information-circle" size={16} color="#666" />
+          <Text style={styles.pinHintText}>PIN: 258411</Text>
+        </View>
+      </ScrollView>
+    </View>
+  );
+
   // Show welcome screen or main app
   if (showWelcome) {
     return (
       <SafeAreaView style={styles.container}>
         {renderWelcomeScreen()}
+      </SafeAreaView>
+    );
+  }
+
+  // Show PIN login
+  if (showPinLogin) {
+    return (
+      <SafeAreaView style={styles.container}>
+        {renderPinLoginScreen()}
       </SafeAreaView>
     );
   }
