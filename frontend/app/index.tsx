@@ -948,13 +948,23 @@ export default function MedicalHistoryApp() {
         <Text style={styles.pinTitle}>Login</Text>
         <Text style={styles.pinSubtitle}>Enter your name and PIN to access medical records</Text>
 
+        {pinError ? (
+          <View style={styles.errorContainer}>
+            <Ionicons name="alert-circle" size={20} color="#FF3B30" />
+            <Text style={styles.errorText}>{pinError}</Text>
+          </View>
+        ) : null}
+
         <View style={styles.pinInputGroup}>
           <Text style={styles.pinInputLabel}>Full Name</Text>
           <TextInput
             style={styles.pinTextInput}
             placeholder="Enter your full name"
             value={fullName}
-            onChangeText={setFullName}
+            onChangeText={(text) => {
+              setFullName(text);
+              setPinError(''); // Clear error when user types
+            }}
             autoCapitalize="words"
           />
         </View>
@@ -965,7 +975,10 @@ export default function MedicalHistoryApp() {
             style={styles.pinInput}
             placeholder="Enter 6-digit PIN"
             value={pin}
-            onChangeText={setPin}
+            onChangeText={(text) => {
+              setPin(text);
+              setPinError(''); // Clear error when user types
+            }}
             keyboardType="number-pad"
             maxLength={6}
             secureTextEntry
@@ -992,6 +1005,7 @@ export default function MedicalHistoryApp() {
           setShowWelcome(true);
           setPin('');
           setFullName('');
+          setPinError('');
         }}>
           <Text style={styles.pinBackText}>← Back to Welcome</Text>
         </TouchableOpacity>
