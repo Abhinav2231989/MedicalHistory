@@ -150,7 +150,7 @@ export default function MedicalHistoryApp() {
         resetInactivityTimer(); // Start the inactivity timer on successful login
       } else {
         // Show error message on screen
-        setPinError('Please enter the correct PIN');
+        setPinError('Please enter a valid 6-digit PIN');
         setPin(''); // Clear the PIN field
       }
     } catch (error) {
