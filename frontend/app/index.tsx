@@ -115,13 +115,16 @@ export default function MedicalHistoryApp() {
   };
 
   const handlePinLogin = async () => {
+    // Clear previous error
+    setPinError('');
+    
     if (!fullName || !fullName.trim()) {
-      Alert.alert('Error', 'Please enter your full name');
+      setPinError('Please enter your full name');
       return;
     }
     
     if (!pin || pin.length !== 6) {
-      Alert.alert('Error', 'Please enter a 6-digit PIN');
+      setPinError('Please enter a 6-digit PIN');
       return;
     }
 
@@ -139,19 +142,20 @@ export default function MedicalHistoryApp() {
         setIsAuthenticated(true);
         setLoggedInUserName(data.full_name);
         setShowPinLogin(false);
+        setPinError('');
         await AsyncStorage.setItem('isAuthenticated', 'true');
         await AsyncStorage.setItem('loggedInUserName', data.full_name);
         fetchRecords();
         fetchStorageStats();
         resetInactivityTimer(); // Start the inactivity timer on successful login
       } else {
-        // Show error alert for incorrect PIN
-        Alert.alert('Error', 'Please enter the correct PIN');
+        // Show error message on screen
+        setPinError('Please enter the correct PIN');
         setPin(''); // Clear the PIN field
       }
     } catch (error) {
       console.error('PIN validation error:', error);
-      Alert.alert('Error', 'Failed to validate PIN. Please try again.');
+      setPinError('Failed to validate PIN. Please try again.');
     } finally {
       setLoading(false);
     }
