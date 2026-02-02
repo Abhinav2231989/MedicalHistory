@@ -156,42 +156,34 @@ export default function MedicalHistoryApp() {
     }
   };
 
-  const handleLogout = () => {
-    console.log('Logout button clicked'); // Debug log
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            console.log('Logout confirmed'); // Debug log
-            // Clear the inactivity timer
-            if (inactivityTimer) {
-              clearTimeout(inactivityTimer);
-              setInactivityTimer(null);
-            }
-            
-            // Reset all states to go back to welcome page (home page)
-            setIsAuthenticated(false);
-            setShowPinLogin(false);
-            setShowWelcome(true);  // Show welcome page (home page with Binod Kumar message)
-            setLoggedInUserName('');
-            setPin('');
-            setFullName('');
-            setCurrentScreen('list');
-            
-            // Clear AsyncStorage
-            await AsyncStorage.removeItem('isAuthenticated');
-            await AsyncStorage.removeItem('loggedInUserName');
-            
-            console.log('Logout complete, should show welcome screen'); // Debug log
-          },
-        },
-      ]
-    );
+  const handleLogout = async () => {
+    try {
+      console.log('Logout button clicked');
+      
+      // Clear the inactivity timer
+      if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+        setInactivityTimer(null);
+      }
+      
+      // Reset all states to go back to PIN login
+      setIsAuthenticated(false);
+      setShowPinLogin(true);
+      setShowWelcome(false);
+      setLoggedInUserName('');
+      setPin('');
+      setFullName('');
+      setCurrentScreen('list');
+      
+      // Clear AsyncStorage
+      await AsyncStorage.removeItem('isAuthenticated');
+      await AsyncStorage.removeItem('loggedInUserName');
+      
+      console.log('Logout complete');
+    } catch (error) {
+      console.error('Logout error:', error);
+      Alert.alert('Error', 'Failed to logout. Please try again.');
+    }
   };
 
   useEffect(() => {
