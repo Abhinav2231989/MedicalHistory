@@ -124,7 +124,7 @@ export default function MedicalHistoryApp() {
     }
     
     if (!pin || pin.length !== 6) {
-      setPinError('Please enter a 6-digit PIN');
+      setPinError('Please enter a valid 6-digit PIN');
       return;
     }
 
